@@ -127,7 +127,11 @@ export function ConversationView() {
   const showInterrupt = isRunning && tab.messages.some((m) => m.role === 'user')
 
   if (tab.messages.length === 0) {
-    return <EmptyState />
+    return (
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <EmptyState />
+      </div>
+    )
   }
 
   // Messages from before initial render cap are "historical" — no motion
