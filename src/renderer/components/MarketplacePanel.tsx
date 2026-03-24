@@ -93,7 +93,7 @@ export function MarketplacePanel() {
     <div
       data-clui-ui
       style={{
-        height: 470,
+        height: '100%',
         display: 'flex',
         flexDirection: 'column',
       }}

@@ -61,8 +61,8 @@ interface State {
   /** Global permission mode: 'ask' shows cards, 'auto' auto-approves all tool calls */
   permissionMode: 'ask' | 'auto'
 
-  // Marketplace state
-  marketplaceOpen: boolean
+  // Panel state — only one panel can be open at a time
+  activePanelId: 'marketplace' | 'api-config' | null
   marketplaceCatalog: CatalogPlugin[]
   marketplaceLoading: boolean
   marketplaceError: string | null
@@ -80,6 +80,8 @@ interface State {
   closeTab: (tabId: string) => void
   clearTab: () => void
   toggleExpanded: () => void
+  togglePanel: (id: 'marketplace' | 'api-config') => void
+  closePanel: () => void
   toggleMarketplace: () => void
   closeMarketplace: () => void
   loadMarketplace: (forceRefresh?: boolean) => Promise<void>
@@ -157,8 +159,8 @@ export const useSessionStore = create<State>((set, get) => ({
   preferredModel: null,
   permissionMode: 'ask',
 
-  // Marketplace
-  marketplaceOpen: false,
+  // Panel
+  activePanelId: null,
   marketplaceCatalog: [],
   marketplaceLoading: false,
   marketplaceError: null,
@@ -223,7 +225,7 @@ export const useSessionStore = create<State>((set, get) => ({
       const willExpand = !s.isExpanded
       set((prev) => ({
         isExpanded: willExpand,
-        marketplaceOpen: false,
+        activePanelId: null,
         // Expanding = reading: clear unread flag
         tabs: willExpand
           ? prev.tabs.map((t) => t.id === tabId ? { ...t, hasUnread: false } : t)
@@ -233,7 +235,7 @@ export const useSessionStore = create<State>((set, get) => ({
       // Switching to a different tab: mark as read
       set((prev) => ({
         activeTabId: tabId,
-        marketplaceOpen: false,
+        activePanelId: null,
         tabs: prev.tabs.map((t) =>
           t.id === tabId ? { ...t, hasUnread: false } : t
         ),
@@ -254,19 +256,21 @@ export const useSessionStore = create<State>((set, get) => ({
     }))
   },
 
-  toggleMarketplace: () => {
+  togglePanel: (id) => {
     const s = get()
-    if (s.marketplaceOpen) {
-      set({ marketplaceOpen: false })
+    if (s.activePanelId === id) {
+      set({ activePanelId: null })
     } else {
-      set({ isExpanded: false, marketplaceOpen: true })
-      get().loadMarketplace()
+      if (id === 'marketplace') get().loadMarketplace()
+      set({ isExpanded: false, activePanelId: id })
     }
   },
 
-  closeMarketplace: () => {
-    set({ marketplaceOpen: false })
-  },
+  closePanel: () => set({ activePanelId: null }),
+
+  // Aliases kept for backward compat
+  toggleMarketplace: () => get().togglePanel('marketplace'),
+  closeMarketplace: () => get().closePanel(),
 
   loadMarketplace: async (forceRefresh) => {
     set({ marketplaceLoading: true, marketplaceError: null })
@@ -340,7 +344,7 @@ export const useSessionStore = create<State>((set, get) => ({
   },
 
   buildYourOwn: () => {
-    set({ marketplaceOpen: false, isExpanded: true })
+    set({ activePanelId: null, isExpanded: true })
     // Small delay to let the UI transition
     setTimeout(() => {
       get().sendMessage('Help me create a new Claude Code skill')

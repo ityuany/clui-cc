@@ -1,37 +1,66 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react'
-import { createPortal } from 'react-dom'
-import { motion } from 'framer-motion'
-import { Key, Eye, EyeSlash, Check } from '@phosphor-icons/react'
-import { usePopoverLayer } from './PopoverLayer'
+import React, { useState } from 'react'
+import { Key, Eye, EyeSlash, Check, Plus, PencilSimple, Trash, ArrowLeft } from '@phosphor-icons/react'
 import { useColors } from '../theme'
+
+// ─── Types ───
+
+export interface ApiProfile {
+  id: string
+  name: string
+  baseUrl: string
+  authToken: string
+}
+
+interface ApiConfigData {
+  profiles: ApiProfile[]
+  activeId: string | null
+}
 
 // ─── Persistence ───
 
-const CONFIG_KEY = 'clui-api-config'
+const CONFIG_V1_KEY = 'clui-api-config'
+const CONFIG_V2_KEY = 'clui-api-config-v2'
 
-function loadConfig(): { baseUrl: string; authToken: string } {
+function loadConfigData(): ApiConfigData {
   try {
-    const raw = localStorage.getItem(CONFIG_KEY)
+    const raw = localStorage.getItem(CONFIG_V2_KEY)
     if (raw) {
       const parsed = JSON.parse(raw)
-      return {
-        baseUrl: typeof parsed.baseUrl === 'string' ? parsed.baseUrl : '',
-        authToken: typeof parsed.authToken === 'string' ? parsed.authToken : '',
+      if (Array.isArray(parsed.profiles)) return parsed as ApiConfigData
+    }
+    // Migrate v1 → v2
+    const v1 = localStorage.getItem(CONFIG_V1_KEY)
+    if (v1) {
+      const parsed = JSON.parse(v1)
+      if (parsed.baseUrl || parsed.authToken) {
+        const profile: ApiProfile = { id: 'default', name: '默认', baseUrl: parsed.baseUrl || '', authToken: parsed.authToken || '' }
+        const data: ApiConfigData = { profiles: [profile], activeId: 'default' }
+        saveConfigData(data)
+        return data
       }
     }
   } catch {}
-  return { baseUrl: '', authToken: '' }
+  return { profiles: [], activeId: null }
 }
 
-function saveConfig(config: { baseUrl: string; authToken: string }): void {
-  try { localStorage.setItem(CONFIG_KEY, JSON.stringify(config)) } catch {}
+function saveConfigData(data: ApiConfigData): void {
+  try { localStorage.setItem(CONFIG_V2_KEY, JSON.stringify(data)) } catch {}
 }
 
 export function loadApiConfig(): { baseUrl: string; authToken: string } {
-  return loadConfig()
+  const data = loadConfigData()
+  if (data.activeId) {
+    const active = data.profiles.find(p => p.id === data.activeId)
+    if (active) return { baseUrl: active.baseUrl, authToken: active.authToken }
+  }
+  return { baseUrl: '', authToken: '' }
 }
 
-// ─── Input wrapper that highlights border on focus ───
+function genId(): string {
+  return Math.random().toString(36).slice(2, 10)
+}
+
+// ─── ConfigInput ───
 
 function ConfigInput({
   type = 'text',
@@ -49,7 +78,6 @@ function ConfigInput({
   colors: ReturnType<typeof useColors>
 }) {
   const [focused, setFocused] = useState(false)
-
   return (
     <div
       style={{
@@ -87,262 +115,329 @@ function ConfigInput({
   )
 }
 
-// ─── Component ───
+// ─── Edit Panel ───
 
-export function ApiConfigPopover({ disabled }: { disabled?: boolean }) {
-  const colors = useColors()
-  const popoverLayer = usePopoverLayer()
-
-  const [open, setOpen] = useState(false)
-  const [baseUrl, setBaseUrl] = useState('')
-  const [authToken, setAuthToken] = useState('')
+function EditPanel({
+  profile,
+  onSave,
+  onBack,
+  colors,
+}: {
+  profile: ApiProfile | null
+  onSave: (p: ApiProfile) => void
+  onBack: () => void
+  colors: ReturnType<typeof useColors>
+}) {
+  const [name, setName] = useState(profile?.name ?? '')
+  const [baseUrl, setBaseUrl] = useState(profile?.baseUrl ?? '')
+  const [authToken, setAuthToken] = useState(profile?.authToken ?? '')
   const [showToken, setShowToken] = useState(false)
   const [saved, setSaved] = useState(false)
-  const [isConfigured, setIsConfigured] = useState(() => {
-    const cfg = loadConfig()
-    return !!(cfg.baseUrl || cfg.authToken)
-  })
-
-  const triggerRef = useRef<HTMLButtonElement>(null)
-  const popoverRef = useRef<HTMLDivElement>(null)
-  const [pos, setPos] = useState<{ left: number; bottom: number }>({ left: 0, bottom: 0 })
-
-  // Load saved values when popover opens
-  useEffect(() => {
-    if (!open) return
-    const cfg = loadConfig()
-    setBaseUrl(cfg.baseUrl)
-    setAuthToken(cfg.authToken)
-    setSaved(false)
-    setShowToken(false)
-  }, [open])
-
-  const updatePos = useCallback(() => {
-    if (!triggerRef.current) return
-    const rect = triggerRef.current.getBoundingClientRect()
-    setPos({ left: rect.left, bottom: window.innerHeight - rect.top + 6 })
-  }, [])
-
-  // Close on outside click
-  useEffect(() => {
-    if (!open) return
-    const handler = (e: MouseEvent) => {
-      const target = e.target as Node
-      if (triggerRef.current?.contains(target)) return
-      if (popoverRef.current?.contains(target)) return
-      setOpen(false)
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [open])
-
-  // Track button position while open
-  useEffect(() => {
-    if (!open) return
-    const onResize = () => updatePos()
-    window.addEventListener('resize', onResize)
-    return () => window.removeEventListener('resize', onResize)
-  }, [open, updatePos])
-
-  const handleToggle = () => {
-    if (!open) updatePos()
-    setOpen((o) => !o)
-  }
 
   const handleSave = () => {
-    const cfg = { baseUrl: baseUrl.trim(), authToken: authToken.trim() }
-    saveConfig(cfg)
-    setIsConfigured(!!(cfg.baseUrl || cfg.authToken))
+    const p: ApiProfile = {
+      id: profile?.id ?? genId(),
+      name: name.trim() || '未命名',
+      baseUrl: baseUrl.trim(),
+      authToken: authToken.trim(),
+    }
+    onSave(p)
     setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
-  }
-
-  const handleClear = () => {
-    setBaseUrl('')
-    setAuthToken('')
-    saveConfig({ baseUrl: '', authToken: '' })
-    setIsConfigured(false)
-    setSaved(false)
+    setTimeout(() => { setSaved(false); onBack() }, 900)
   }
 
   return (
-    <>
+    <div className="flex flex-col gap-2.5">
+      <div className="flex items-center gap-1.5">
+        <button
+          onClick={onBack}
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: 'none', border: 'none', cursor: 'pointer',
+            color: colors.textTertiary, padding: 2, borderRadius: 4,
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = colors.textSecondary }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = colors.textTertiary }}
+        >
+          <ArrowLeft size={14} />
+        </button>
+        <span className="text-[12px] font-medium" style={{ color: colors.textPrimary }}>
+          {profile ? '编辑配置' : '新增配置'}
+        </span>
+      </div>
+
+      <div style={{ height: 1, background: colors.popoverBorder }} />
+
+      <div className="flex flex-col gap-1.5">
+        <div className="text-[11px]" style={{ color: colors.textTertiary }}>名称</div>
+        <ConfigInput value={name} onChange={setName} placeholder="例如：默认、我的代理..." colors={colors} />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <div className="text-[11px]" style={{ color: colors.textTertiary }}>ANTHROPIC_BASE_URL</div>
+        <ConfigInput value={baseUrl} onChange={setBaseUrl} placeholder="https://api.anthropic.com" colors={colors} />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <div className="text-[11px]" style={{ color: colors.textTertiary }}>ANTHROPIC_AUTH_TOKEN</div>
+        <ConfigInput
+          type={showToken ? 'text' : 'password'}
+          value={authToken}
+          onChange={setAuthToken}
+          placeholder="sk-ant-..."
+          colors={colors}
+          suffix={
+            <button
+              type="button"
+              onClick={() => setShowToken((s) => !s)}
+              style={{ flexShrink: 0, color: colors.textTertiary, background: 'none', border: 'none', cursor: 'pointer', display: 'flex', padding: 2, borderRadius: 4 }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = colors.textSecondary }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = colors.textTertiary }}
+              title={showToken ? '隐藏' : '显示'}
+            >
+              {showToken ? <EyeSlash size={13} /> : <Eye size={13} />}
+            </button>
+          }
+        />
+      </div>
+
+      <div style={{ height: 1, background: colors.popoverBorder }} />
+
       <button
-        ref={triggerRef}
-        className="stack-btn stack-btn-4 glass-surface"
-        title="API 配置"
-        onClick={handleToggle}
-        disabled={disabled}
+        onClick={handleSave}
+        style={{
+          fontSize: 12, fontWeight: 600, padding: '5px 10px', borderRadius: 8,
+          background: saved ? colors.statusComplete : colors.accent,
+          color: colors.textOnAccent, border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
+          transition: 'background 0.15s',
+        }}
+        onMouseEnter={(e) => { if (!saved) e.currentTarget.style.background = colors.sendHover }}
+        onMouseLeave={(e) => { if (!saved) e.currentTarget.style.background = colors.accent }}
       >
-        <Key size={17} />
-        {isConfigured && (
-          <span
-            style={{
-              position: 'absolute',
-              top: 9,
-              right: 9,
-              width: 6,
-              height: 6,
-              borderRadius: '50%',
-              background: colors.accent,
-              pointerEvents: 'none',
-            }}
-          />
-        )}
+        {saved ? <><Check size={13} weight="bold" />已保存</> : '保存'}
+      </button>
+    </div>
+  )
+}
+
+// ─── Profile Row ───
+
+function ProfileRow({
+  profile,
+  isActive,
+  onActivate,
+  onEdit,
+  onDelete,
+  colors,
+}: {
+  profile: ApiProfile
+  isActive: boolean
+  onActivate: () => void
+  onEdit: () => void
+  onDelete: () => void
+  colors: ReturnType<typeof useColors>
+}) {
+  const [hovered, setHovered] = useState(false)
+
+  return (
+    <div
+      style={{
+        display: 'flex', alignItems: 'center', gap: 6,
+        borderRadius: 8, padding: '5px 4px',
+        background: hovered ? colors.inputPillBg : 'transparent',
+        transition: 'background 0.12s',
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <button
+        onClick={onActivate}
+        style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', padding: 0 }}
+      >
+        <div style={{
+          width: 14, height: 14, borderRadius: '50%',
+          border: `2px solid ${isActive ? colors.accent : colors.textTertiary}`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+          transition: 'border-color 0.15s',
+        }}>
+          {isActive && <div style={{ width: 6, height: 6, borderRadius: '50%', background: colors.accent }} />}
+        </div>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontSize: 12, fontWeight: isActive ? 600 : 400, color: isActive ? colors.textPrimary : colors.textSecondary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {profile.name}
+          </div>
+          {profile.baseUrl && (
+            <div style={{ fontSize: 10, color: colors.textTertiary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {profile.baseUrl}
+            </div>
+          )}
+        </div>
       </button>
 
-      {popoverLayer && open && createPortal(
-        <motion.div
-          ref={popoverRef}
-          data-clui-ui
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 6 }}
-          transition={{ duration: 0.12 }}
-          className="rounded-xl"
-          style={{
-            position: 'fixed',
-            left: pos.left,
-            bottom: pos.bottom,
-            width: 280,
-            pointerEvents: 'auto',
-            background: colors.popoverBg,
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            boxShadow: colors.popoverShadow,
-            border: `1px solid ${colors.popoverBorder}`,
-          }}
+      <div style={{ display: 'flex', gap: 2, opacity: hovered ? 1 : 0, transition: 'opacity 0.12s' }}>
+        <button
+          onClick={onEdit}
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'none', border: 'none', cursor: 'pointer', color: colors.textTertiary, padding: 3, borderRadius: 5 }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = colors.textSecondary; e.currentTarget.style.background = colors.containerBorder }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = colors.textTertiary; e.currentTarget.style.background = 'none' }}
+          title="编辑"
         >
-          <div className="p-3 flex flex-col gap-2.5">
+          <PencilSimple size={12} />
+        </button>
+        <button
+          onClick={onDelete}
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'none', border: 'none', cursor: 'pointer', color: colors.textTertiary, padding: 3, borderRadius: 5 }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.background = 'rgba(239,68,68,0.1)' }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = colors.textTertiary; e.currentTarget.style.background = 'none' }}
+          title="删除"
+        >
+          <Trash size={12} />
+        </button>
+      </div>
+    </div>
+  )
+}
 
-            {/* Header row — same icon+label pattern as SettingsPopover rows */}
-            <div className="flex items-center gap-2">
-              <Key size={14} style={{ color: colors.textTertiary }} />
-              <span className="text-[12px] font-medium" style={{ color: colors.textPrimary }}>
-                API 配置
-              </span>
-            </div>
+// ─── ApiConfigContent — the panel body (no container, no trigger) ───
 
-            <div style={{ height: 1, background: colors.popoverBorder }} />
+type View = 'list' | 'edit'
 
-            {/* Base URL */}
-            <div className="flex flex-col gap-1.5">
-              <div className="text-[11px]" style={{ color: colors.textTertiary }}>
-                ANTHROPIC_BASE_URL
-              </div>
-              <ConfigInput
-                value={baseUrl}
-                onChange={(v) => { setBaseUrl(v); setSaved(false) }}
-                placeholder="https://api.anthropic.com"
-                colors={colors}
-              />
-            </div>
+export function ApiConfigContent() {
+  const colors = useColors()
+  const [view, setView] = useState<View>('list')
+  const [editingProfile, setEditingProfile] = useState<ApiProfile | null>(null)
+  const [configData, setConfigData] = useState<ApiConfigData>(() => loadConfigData())
 
-            {/* Auth Token */}
-            <div className="flex flex-col gap-1.5">
-              <div className="text-[11px]" style={{ color: colors.textTertiary }}>
-                ANTHROPIC_AUTH_TOKEN
-              </div>
-              <ConfigInput
-                type={showToken ? 'text' : 'password'}
-                value={authToken}
-                onChange={(v) => { setAuthToken(v); setSaved(false) }}
-                placeholder="sk-ant-..."
-                colors={colors}
-                suffix={
-                  <button
-                    type="button"
-                    onClick={() => setShowToken((s) => !s)}
-                    style={{
-                      flexShrink: 0,
-                      color: colors.textTertiary,
-                      background: 'none',
-                      border: 'none',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      padding: 2,
-                      borderRadius: 4,
-                    }}
-                    onMouseEnter={(e) => { e.currentTarget.style.color = colors.textSecondary }}
-                    onMouseLeave={(e) => { e.currentTarget.style.color = colors.textTertiary }}
-                    title={showToken ? '隐藏' : '显示'}
-                  >
-                    {showToken ? <EyeSlash size={13} /> : <Eye size={13} />}
-                  </button>
-                }
-              />
-            </div>
+  const handleActivate = (id: string) => {
+    const next = { ...configData, activeId: configData.activeId === id ? null : id }
+    setConfigData(next)
+    saveConfigData(next)
+  }
 
-            <div style={{ height: 1, background: colors.popoverBorder }} />
+  const handleEdit = (profile: ApiProfile) => { setEditingProfile(profile); setView('edit') }
+  const handleNew = () => { setEditingProfile(null); setView('edit') }
+  const handleBack = () => { setView('list'); setEditingProfile(null) }
 
-            {/* Actions */}
-            <div className="flex gap-1.5">
-              {isConfigured && (
-                <button
-                  onClick={handleClear}
-                  style={{
-                    flexShrink: 0,
-                    fontSize: 12,
-                    fontWeight: 500,
-                    padding: '5px 10px',
-                    borderRadius: 8,
-                    background: 'transparent',
-                    color: colors.textSecondary,
-                    border: `1px solid ${colors.containerBorder}`,
-                    cursor: 'pointer',
-                    fontFamily: 'inherit',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = colors.textPrimary
-                    e.currentTarget.style.borderColor = colors.textTertiary
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = colors.textSecondary
-                    e.currentTarget.style.borderColor = colors.containerBorder
-                  }}
-                >
-                  清除
-                </button>
-              )}
-              <button
-                onClick={handleSave}
-                style={{
-                  flex: 1,
-                  fontSize: 12,
-                  fontWeight: 600,
-                  padding: '5px 10px',
-                  borderRadius: 8,
-                  background: saved ? colors.statusComplete : colors.accent,
-                  color: colors.textOnAccent,
-                  border: 'none',
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 5,
-                  transition: 'background 0.15s',
-                }}
-                onMouseEnter={(e) => {
-                  if (!saved) e.currentTarget.style.background = colors.sendHover
-                }}
-                onMouseLeave={(e) => {
-                  if (!saved) e.currentTarget.style.background = colors.accent
-                }}
-              >
-                {saved ? (
-                  <>
-                    <Check size={13} weight="bold" />
-                    已保存
-                  </>
-                ) : '保存'}
-              </button>
-            </div>
+  const handleDelete = (id: string) => {
+    const profiles = configData.profiles.filter(p => p.id !== id)
+    const activeId = configData.activeId === id ? (profiles[0]?.id ?? null) : configData.activeId
+    const next = { profiles, activeId }
+    setConfigData(next)
+    saveConfigData(next)
+  }
 
-          </div>
-        </motion.div>,
-        popoverLayer,
+  const handleSaveEdit = (profile: ApiProfile) => {
+    const existing = configData.profiles.findIndex(p => p.id === profile.id)
+    const profiles = existing >= 0
+      ? configData.profiles.map(p => p.id === profile.id ? profile : p)
+      : [...configData.profiles, profile]
+    const activeId = configData.activeId ?? profile.id
+    const next = { profiles, activeId }
+    setConfigData(next)
+    saveConfigData(next)
+  }
+
+  const inner = view === 'edit' ? (
+    <EditPanel
+      profile={editingProfile}
+      onSave={handleSaveEdit}
+      onBack={handleBack}
+      colors={colors}
+    />
+  ) : (
+    <div className="flex flex-col gap-2">
+      {/* Header */}
+      <div className="flex items-center gap-2">
+        <Key size={14} style={{ color: colors.textTertiary }} />
+        <span className="text-[12px] font-medium" style={{ color: colors.textPrimary }}>API 配置</span>
+        <span style={{ marginLeft: 'auto', fontSize: 10, color: colors.textTertiary }}>
+          {configData.profiles.length} 条
+        </span>
+      </div>
+
+      <div style={{ height: 1, background: colors.popoverBorder }} />
+
+      {configData.profiles.length === 0 ? (
+        <div className="text-[11px] text-center py-3" style={{ color: colors.textTertiary }}>
+          暂无配置，点击下方新增
+        </div>
+      ) : (
+        <div className="flex flex-col" style={{ gap: 1 }}>
+          {configData.profiles.map(profile => (
+            <ProfileRow
+              key={profile.id}
+              profile={profile}
+              isActive={configData.activeId === profile.id}
+              onActivate={() => handleActivate(profile.id)}
+              onEdit={() => handleEdit(profile)}
+              onDelete={() => handleDelete(profile.id)}
+              colors={colors}
+            />
+          ))}
+        </div>
       )}
-    </>
+
+      <div style={{ height: 1, background: colors.popoverBorder }} />
+
+      <button
+        onClick={handleNew}
+        style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
+          fontSize: 12, fontWeight: 500, padding: '5px 10px', borderRadius: 8,
+          background: 'transparent', color: colors.textSecondary,
+          border: `1px solid ${colors.containerBorder}`,
+          cursor: 'pointer', fontFamily: 'inherit',
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.color = colors.textPrimary; e.currentTarget.style.borderColor = colors.textTertiary }}
+        onMouseLeave={(e) => { e.currentTarget.style.color = colors.textSecondary; e.currentTarget.style.borderColor = colors.containerBorder }}
+      >
+        <Plus size={13} />
+        新增配置
+      </button>
+    </div>
+  )
+
+  // 填满整个面板容器，内容区居中
+  return (
+    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ width: 320 }}>
+        {inner}
+      </div>
+    </div>
+  )
+}
+
+// ─── ApiConfigButton — trigger button only ───
+
+export function ApiConfigButton({
+  active,
+  disabled,
+  onClick,
+}: {
+  active: boolean
+  disabled?: boolean
+  onClick: () => void
+}) {
+  const colors = useColors()
+  const hasConfig = loadConfigData().profiles.some(p => p.id === loadConfigData().activeId)
+
+  return (
+    <button
+      className="stack-btn stack-btn-4 glass-surface"
+      title="API 配置"
+      onClick={onClick}
+      disabled={disabled}
+      style={{ background: active ? colors.inputPillBg : undefined }}
+    >
+      <Key size={17} />
+      {hasConfig && (
+        <span style={{
+          position: 'absolute', top: 9, right: 9,
+          width: 6, height: 6, borderRadius: '50%',
+          background: colors.accent, pointerEvents: 'none',
+        }} />
+      )}
+    </button>
   )
 }

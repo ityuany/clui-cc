@@ -6,7 +6,7 @@ import { ConversationView } from './components/ConversationView'
 import { InputBar } from './components/InputBar'
 import { StatusBar } from './components/StatusBar'
 import { MarketplacePanel } from './components/MarketplacePanel'
-import { ApiConfigPopover } from './components/ApiConfigPopover'
+import { ApiConfigButton, ApiConfigContent } from './components/ApiConfigPopover'
 import { PopoverLayerProvider } from './components/PopoverLayer'
 import { useClaudeEvents } from './hooks/useClaudeEvents'
 import { useHealthReconciliation } from './hooks/useHealthReconciliation'
@@ -93,7 +93,8 @@ export default function App() {
   }, [])
 
   const isExpanded = useSessionStore((s) => s.isExpanded)
-  const marketplaceOpen = useSessionStore((s) => s.marketplaceOpen)
+  const activePanelId = useSessionStore((s) => s.activePanelId)
+  const togglePanel = useSessionStore((s) => s.togglePanel)
   const isRunning = activeTabStatus === 'running' || activeTabStatus === 'connecting'
 
   // Layout dimensions — expandedUI widens and heightens the panel
@@ -123,7 +124,7 @@ export default function App() {
         <div style={{ width: contentWidth, position: 'relative', margin: '0 auto', transition: 'width 0.26s cubic-bezier(0.4, 0, 0.1, 1)' }}>
 
           <AnimatePresence initial={false}>
-            {marketplaceOpen && (
+            {activePanelId !== null && (
               <div
                 data-clui-ui
                 style={{
@@ -137,6 +138,7 @@ export default function App() {
                 }}
               >
                 <motion.div
+                  key={activePanelId}
                   initial={{ opacity: 0, y: 14, scale: 0.98 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 10, scale: 0.985 }}
@@ -145,12 +147,10 @@ export default function App() {
                   <div
                     data-clui-ui
                     className="glass-surface overflow-hidden no-drag"
-                    style={{
-                      borderRadius: 24,
-                      maxHeight: 470,
-                    }}
+                    style={{ borderRadius: 24, height: 470 }}
                   >
-                    <MarketplacePanel />
+                    {activePanelId === 'marketplace' && <MarketplacePanel />}
+                    {activePanelId === 'api-config' && <ApiConfigContent />}
                   </div>
                 </motion.div>
               </div>
@@ -242,7 +242,11 @@ export default function App() {
                   <HeadCircuit size={17} />
                 </button>
                 {/* btn-4: API Config (leftmost) */}
-                <ApiConfigPopover disabled={isRunning} />
+                <ApiConfigButton
+                  active={activePanelId === 'api-config'}
+                  disabled={isRunning}
+                  onClick={() => togglePanel('api-config')}
+                />
               </div>
             </div>
 
