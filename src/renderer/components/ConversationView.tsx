@@ -177,7 +177,7 @@ export function ConversationView() {
               case 'assistant':
                 return <AssistantMessage key={item.message.id} message={item.message} skipMotion={isHistorical} />
               case 'tool-group':
-                return <ToolGroup key={`tg-${item.messages[0].id}`} tools={item.messages} skipMotion={isHistorical} />
+                return <ToolGroup key={`tg-${item.messages[0].id}`} tools={item.messages} skipMotion={isHistorical} hasPermissionPending={tab.permissionQueue.length > 0} />
               case 'system':
                 return <SystemMessage key={item.message.id} message={item.message} skipMotion={isHistorical} />
               default:
@@ -658,12 +658,14 @@ function getToolDescription(name: string, input?: string): string {
   }
 }
 
-function ToolGroup({ tools, skipMotion }: { tools: Message[]; skipMotion?: boolean }) {
+function ToolGroup({ tools, skipMotion, hasPermissionPending }: { tools: Message[]; skipMotion?: boolean; hasPermissionPending?: boolean }) {
   const hasRunning = tools.some((t) => t.toolStatus === 'running')
   const [expanded, setExpanded] = useState(false)
   const colors = useColors()
 
-  const isOpen = expanded || hasRunning
+  // When a permission card is showing, collapse the tool group so the
+  // PermissionCard becomes the sole focus and there is no visual overlap.
+  const isOpen = expanded || (hasRunning && !hasPermissionPending)
 
   if (isOpen) {
     const inner = (
