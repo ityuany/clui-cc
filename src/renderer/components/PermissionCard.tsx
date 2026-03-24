@@ -1,6 +1,6 @@
 import React from 'react'
 import { motion } from 'framer-motion'
-import { ShieldWarning, Terminal, PencilSimple, Globe, Wrench } from '@phosphor-icons/react'
+import { ShieldWarningIcon, TerminalIcon, PencilSimpleIcon, GlobeIcon, WrenchIcon } from '@phosphor-icons/react'
 import { useSessionStore } from '../stores/sessionStore'
 import { useColors } from '../theme'
 import type { PermissionRequest } from '../../shared/types'
@@ -12,15 +12,15 @@ interface Props {
 }
 
 const TOOL_ICONS: Record<string, React.ReactNode> = {
-  Bash: <Terminal size={14} />,
-  Edit: <PencilSimple size={14} />,
-  Write: <PencilSimple size={14} />,
-  WebSearch: <Globe size={14} />,
-  WebFetch: <Globe size={14} />,
+  Bash: <TerminalIcon size={14} />,
+  Edit: <PencilSimpleIcon size={14} />,
+  Write: <PencilSimpleIcon size={14} />,
+  WebSearch: <GlobeIcon size={14} />,
+  WebFetch: <GlobeIcon size={14} />,
 }
 
 function getToolIcon(name: string) {
-  return TOOL_ICONS[name] || <Wrench size={14} />
+  return TOOL_ICONS[name] || <WrenchIcon size={14} />
 }
 
 const SENSITIVE_FIELD_RE = /token|password|secret|key|auth|credential|api.?key/i
@@ -87,7 +87,7 @@ export function PermissionCard({ tabId, permission, queueLength = 1 }: Props) {
             borderBottom: `1px solid ${colors.permissionHeaderBorder}`,
           }}
         >
-          <ShieldWarning size={12} style={{ color: colors.statusPermission }} />
+          <ShieldWarningIcon size={12} style={{ color: colors.statusPermission }} />
           <span className="text-[11px] font-semibold" style={{ color: colors.statusPermission }}>
             Permission Required
           </span>

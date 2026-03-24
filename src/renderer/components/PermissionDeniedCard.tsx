@@ -1,6 +1,6 @@
 import React from 'react'
 import { motion } from 'framer-motion'
-import { ShieldWarning, Terminal, ArrowSquareOut } from '@phosphor-icons/react'
+import { ShieldWarningIcon, TerminalIcon, ArrowSquareOutIcon } from '@phosphor-icons/react'
 import { useColors } from '../theme'
 
 interface Props {
@@ -47,7 +47,7 @@ export function PermissionDeniedCard({ tools, sessionId, projectPath, onDismiss 
             borderBottom: `1px solid ${colors.permissionDeniedHeaderBorder}`,
           }}
         >
-          <ShieldWarning size={14} style={{ color: colors.statusError }} />
+          <ShieldWarningIcon size={14} style={{ color: colors.statusError }} />
           <span className="text-[12px] font-semibold" style={{ color: colors.statusError }}>
             Tools Denied by Permission Settings
           </span>
@@ -75,7 +75,7 @@ export function PermissionDeniedCard({ tools, sessionId, projectPath, onDismiss 
                     border: `1px solid ${colors.surfaceSecondary}`,
                   }}
                 >
-                  <Terminal size={10} />
+                  <TerminalIcon size={10} />
                   {name}
                 </span>
               ))}
@@ -100,7 +100,7 @@ export function PermissionDeniedCard({ tools, sessionId, projectPath, onDismiss 
                   e.currentTarget.style.background = colors.accentLight
                 }}
               >
-                <ArrowSquareOut size={12} />
+                <ArrowSquareOutIcon size={12} />
                 Open in CLI
               </button>
             )}

@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { motion } from 'framer-motion'
 import {
-  Trash, Cpu, CurrencyDollar, Question, HardDrives, Sparkle,
+  TrashIcon, CpuIcon, CurrencyDollarIcon, QuestionIcon, HardDrivesIcon, SparkleIcon,
 } from '@phosphor-icons/react'
 import { usePopoverLayer } from './PopoverLayer'
 import { useColors } from '../theme'
@@ -14,12 +14,12 @@ export interface SlashCommand {
 }
 
 export const SLASH_COMMANDS: SlashCommand[] = [
-  { command: '/clear', description: 'Clear conversation history', icon: <Trash size={13} /> },
-  { command: '/cost', description: 'Show token usage and cost', icon: <CurrencyDollar size={13} /> },
-  { command: '/model', description: 'Show current model info', icon: <Cpu size={13} /> },
-  { command: '/mcp', description: 'Show MCP server status', icon: <HardDrives size={13} /> },
-  { command: '/skills', description: 'Show available skills', icon: <Sparkle size={13} /> },
-  { command: '/help', description: 'Show available commands', icon: <Question size={13} /> },
+  { command: '/clear', description: 'Clear conversation history', icon: <TrashIcon size={13} /> },
+  { command: '/cost', description: 'Show token usage and cost', icon: <CurrencyDollarIcon size={13} /> },
+  { command: '/model', description: 'Show current model info', icon: <CpuIcon size={13} /> },
+  { command: '/mcp', description: 'Show MCP server status', icon: <HardDrivesIcon size={13} /> },
+  { command: '/skills', description: 'Show available skills', icon: <SparkleIcon size={13} /> },
+  { command: '/help', description: 'Show available commands', icon: <QuestionIcon size={13} /> },
 ]
 
 interface Props {

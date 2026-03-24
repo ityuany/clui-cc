@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Terminal, CaretDown, Check, FolderOpen, Plus, X, ShieldCheck, UserCircle, Key } from '@phosphor-icons/react'
+import { TerminalIcon, CaretDownIcon, CheckIcon, FolderOpenIcon, PlusIcon, XIcon, ShieldCheckIcon, UserCircleIcon, KeyIcon } from '@phosphor-icons/react'
 import { useSessionStore, AVAILABLE_MODELS, getModelDisplayLabel } from '../stores/sessionStore'
 import { usePopoverLayer } from './PopoverLayer'
 import { useColors } from '../theme'
@@ -77,7 +77,7 @@ function ModelPicker() {
         title={isBusy ? 'Stop the task to change model' : 'Switch model'}
       >
         {activeLabel}
-        <CaretDown size={10} style={{ opacity: 0.6 }} />
+        <CaretDownIcon size={10} style={{ opacity: 0.6 }} />
       </button>
 
       {popoverLayer && open && createPortal(
@@ -116,7 +116,7 @@ function ModelPicker() {
                   }}
                 >
                   {m.label}
-                  {isSelected && <Check size={12} style={{ color: colors.accent }} />}
+                  {isSelected && <CheckIcon size={12} style={{ color: colors.accent }} />}
                 </button>
               )
             })}
@@ -185,9 +185,9 @@ function PermissionModePicker() {
         }}
         title="Permission mode"
       >
-        <ShieldCheck size={11} weight={isAuto ? 'fill' : 'regular'} />
+        <ShieldCheckIcon size={11} weight={isAuto ? 'fill' : 'regular'} />
         {isAuto ? 'Auto' : 'Ask'}
-        <CaretDown size={10} style={{ opacity: 0.6 }} />
+        <CaretDownIcon size={10} style={{ opacity: 0.6 }} />
       </button>
 
       {popoverLayer && open && createPortal(
@@ -222,10 +222,10 @@ function PermissionModePicker() {
               }}
             >
               <span className="flex items-center gap-1.5">
-                <ShieldCheck size={12} />
+                <ShieldCheckIcon size={12} />
                 Ask
               </span>
-              {!isAuto && <Check size={12} style={{ color: colors.accent }} />}
+              {!isAuto && <CheckIcon size={12} style={{ color: colors.accent }} />}
             </button>
 
             <div className="mx-2 my-0.5" style={{ height: 1, background: colors.popoverBorder }} />
@@ -239,10 +239,10 @@ function PermissionModePicker() {
               }}
             >
               <span className="flex items-center gap-1.5">
-                <ShieldCheck size={12} weight="fill" />
+                <ShieldCheckIcon size={12} weight="fill" />
                 Auto
               </span>
-              {isAuto && <Check size={12} style={{ color: colors.accent }} />}
+              {isAuto && <CheckIcon size={12} style={{ color: colors.accent }} />}
             </button>
           </div>
         </motion.div>,
@@ -310,11 +310,11 @@ function AccountSource() {
         title={isProfile ? `API Profile: ${label}` : `Logged in as ${label}`}
       >
         {isProfile
-          ? <Key size={10} style={{ flexShrink: 0 }} />
-          : <UserCircle size={10} style={{ flexShrink: 0 }} />
+          ? <KeyIcon size={10} style={{ flexShrink: 0 }} />
+          : <UserCircleIcon size={10} style={{ flexShrink: 0 }} />
         }
         <span className="truncate">{label}</span>
-        <CaretDown size={10} style={{ opacity: 0.6, flexShrink: 0 }} />
+        <CaretDownIcon size={10} style={{ opacity: 0.6, flexShrink: 0 }} />
       </button>
 
       {popoverLayer && open && createPortal(
@@ -351,10 +351,10 @@ function AccountSource() {
                 }}
               >
                 <span className="flex items-center gap-1.5 min-w-0">
-                  <UserCircle size={11} style={{ flexShrink: 0 }} />
+                  <UserCircleIcon size={11} style={{ flexShrink: 0 }} />
                   <span className="truncate">{staticInfo.email}</span>
                 </span>
-                {activeProfileId === null && <Check size={12} style={{ color: colors.accent, flexShrink: 0 }} />}
+                {activeProfileId === null && <CheckIcon size={12} style={{ color: colors.accent, flexShrink: 0 }} />}
               </button>
             )}
 
@@ -375,10 +375,10 @@ function AccountSource() {
                       }}
                     >
                       <span className="flex items-center gap-1.5 min-w-0">
-                        <Key size={11} style={{ flexShrink: 0 }} />
+                        <KeyIcon size={11} style={{ flexShrink: 0 }} />
                         <span className="truncate">{p.name}</span>
                       </span>
-                      {isSelected && <Check size={12} style={{ color: colors.accent, flexShrink: 0 }} />}
+                      {isSelected && <CheckIcon size={12} style={{ color: colors.accent, flexShrink: 0 }} />}
                     </button>
                   )
                 })}
@@ -497,7 +497,7 @@ export function StatusBar() {
           title={dirTooltip}
           disabled={isRunning}
         >
-          <FolderOpen size={11} className="flex-shrink-0" />
+          <FolderOpenIcon size={11} className="flex-shrink-0" />
           <span className="truncate">{tab.hasChosenDirectory ? compactPath(tab.workingDirectory) : '—'}</span>
           {hasExtraDirs && (
             <span style={{ color: colors.textTertiary, fontWeight: 600 }}>+{tab.additionalDirs.length}</span>
@@ -556,7 +556,7 @@ export function StatusBar() {
                           style={{ color: colors.textTertiary }}
                           title="Remove directory"
                         >
-                          <X size={10} />
+                          <XIcon size={10} />
                         </button>
                       </div>
                     ))}
@@ -572,7 +572,7 @@ export function StatusBar() {
                 className="w-full flex items-center gap-1.5 px-2 py-1.5 text-[11px] transition-colors rounded-lg"
                 style={{ color: colors.accent }}
               >
-                <Plus size={10} />
+                <PlusIcon size={10} />
                 Add directory...
               </button>
             </div>
@@ -597,10 +597,10 @@ export function StatusBar() {
           onClick={handleOpenInTerminal}
           className="flex items-center gap-1 text-[11px] rounded-full px-2 py-0.5 transition-colors"
           style={{ color: colors.textTertiary }}
-          title="Open this session in Terminal"
+          title="Open this session in TerminalIcon"
         >
           Open in CLI
-          <Terminal size={11} />
+          <TerminalIcon size={11} />
         </button>
       </div>
     </div>

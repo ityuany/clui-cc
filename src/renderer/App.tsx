@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Paperclip, Camera, HeadCircuit } from '@phosphor-icons/react'
+import { PaperclipIcon, CameraIcon, HeadCircuitIcon } from '@phosphor-icons/react'
 import { TabStrip } from './components/TabStrip'
 import { ConversationView } from './components/ConversationView'
 import { InputBar } from './components/InputBar'
@@ -224,7 +224,7 @@ export default function App() {
                   onClick={handleAttachFile}
                   disabled={isRunning}
                 >
-                  <Paperclip size={17} />
+                  <PaperclipIcon size={17} />
                 </button>
                 {/* btn-2: Screenshot (middle) */}
                 <button
@@ -233,7 +233,7 @@ export default function App() {
                   onClick={handleScreenshot}
                   disabled={isRunning}
                 >
-                  <Camera size={17} />
+                  <CameraIcon size={17} />
                 </button>
                 {/* btn-3: Skills (back) */}
                 <button
@@ -242,7 +242,7 @@ export default function App() {
                   onClick={() => useSessionStore.getState().toggleMarketplace()}
                   disabled={isRunning}
                 >
-                  <HeadCircuit size={17} />
+                  <HeadCircuitIcon size={17} />
                 </button>
                 {/* btn-4: API Config (leftmost) */}
                 <ApiConfigButton

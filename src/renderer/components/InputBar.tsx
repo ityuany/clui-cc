@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect, useLayoutEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Microphone, ArrowUp, SpinnerGap, X, Check } from '@phosphor-icons/react'
+import { MicrophoneIcon, ArrowUpIcon, SpinnerGapIcon, XIcon, CheckIcon } from '@phosphor-icons/react'
 import { useSessionStore, AVAILABLE_MODELS } from '../stores/sessionStore'
 import { AttachmentChips } from './AttachmentChips'
 import { SlashCommandMenu, getFilteredCommandsWithExtras, type SlashCommand } from './SlashCommandMenu'
@@ -287,7 +287,7 @@ export function InputBar() {
     if (showSlashMenu) {
       const filtered = getFilteredCommandsWithExtras(slashFilter!, skillCommands)
       if (e.key === 'ArrowDown') { e.preventDefault(); setSlashIndex((i) => (i + 1) % filtered.length); return }
-      if (e.key === 'ArrowUp') { e.preventDefault(); setSlashIndex((i) => (i - 1 + filtered.length) % filtered.length); return }
+      if (e.key === 'ArrowUpIcon') { e.preventDefault(); setSlashIndex((i) => (i - 1 + filtered.length) % filtered.length); return }
       if (e.key === 'Tab') { e.preventDefault(); if (filtered.length > 0) handleSlashSelect(filtered[slashIndex]); return }
       if (e.key === 'Escape') { e.preventDefault(); setSlashFilter(null); return }
     }
@@ -342,7 +342,7 @@ export function InputBar() {
     try {
       stream = await navigator.mediaDevices.getUserMedia({ audio: true })
     } catch {
-      setVoiceError('Microphone permission denied.')
+      setVoiceError('MicrophoneIcon permission denied.')
       return
     }
     const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : 'audio/webm'
@@ -450,7 +450,7 @@ export function InputBar() {
                       style={{ background: colors.sendBg, color: colors.textOnAccent }}
                       title={isBusy ? 'Queue message' : 'Send (Enter)'}
                     >
-                      <ArrowUp size={16} weight="bold" />
+                      <ArrowUpIcon size={16} weight="bold" />
                     </button>
                   </motion.div>
                 )}
@@ -508,7 +508,7 @@ export function InputBar() {
                       style={{ background: colors.sendBg, color: colors.textOnAccent }}
                       title={isBusy ? 'Queue message' : 'Send (Enter)'}
                     >
-                      <ArrowUp size={16} weight="bold" />
+                      <ArrowUpIcon size={16} weight="bold" />
                     </button>
                   </motion.div>
                 )}
@@ -556,7 +556,7 @@ function VoiceButtons({ voiceState, isConnecting, colors, onToggle, onCancel, on
             style={{ background: colors.surfaceHover, color: colors.textTertiary }}
             title="Cancel recording"
           >
-            <X size={15} weight="bold" />
+            <XIcon size={15} weight="bold" />
           </button>
           <button
             onMouseDown={(e) => e.preventDefault()}
@@ -565,7 +565,7 @@ function VoiceButtons({ voiceState, isConnecting, colors, onToggle, onCancel, on
             style={{ background: colors.accent, color: colors.textOnAccent }}
             title="Confirm recording"
           >
-            <Check size={15} weight="bold" />
+            <CheckIcon size={15} weight="bold" />
           </button>
         </motion.div>
       ) : voiceState === 'transcribing' ? (
@@ -575,7 +575,7 @@ function VoiceButtons({ voiceState, isConnecting, colors, onToggle, onCancel, on
             className="w-9 h-9 rounded-full flex items-center justify-center"
             style={{ background: colors.micBg, color: colors.micColor }}
           >
-            <SpinnerGap size={16} className="animate-spin" />
+            <SpinnerGapIcon size={16} className="animate-spin" />
           </button>
         </motion.div>
       ) : (
@@ -591,7 +591,7 @@ function VoiceButtons({ voiceState, isConnecting, colors, onToggle, onCancel, on
             }}
             title="Voice input"
           >
-            <Microphone size={16} />
+            <MicrophoneIcon size={16} />
           </button>
         </motion.div>
       )}
@@ -609,7 +609,7 @@ async function blobToWavBase64(blob: Blob): Promise<string> {
   const mono = mixToMono(decoded)
   const inputRms = rmsLevel(mono)
   if (inputRms < 0.003) {
-    throw new Error('No voice detected. Check microphone permission and speak closer to the mic.')
+    throw new Error('No voice detected. CheckIcon microphone permission and speak closer to the mic.')
   }
   const resampled = resampleLinear(mono, decoded.sampleRate, 16000)
   const normalized = normalizePcm(resampled)

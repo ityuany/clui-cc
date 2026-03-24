@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { motion } from 'framer-motion'
-import { DotsThree, Bell, ArrowsOutSimple, Moon } from '@phosphor-icons/react'
+import { DotsThreeIcon, BellIcon, ArrowsOutSimpleIcon, MoonIcon } from '@phosphor-icons/react'
 import { useThemeStore } from '../theme'
 import { useSessionStore } from '../stores/sessionStore'
 import { usePopoverLayer } from './PopoverLayer'
@@ -134,7 +134,7 @@ export function SettingsPopover() {
         style={{ color: colors.textTertiary }}
         title="Settings"
       >
-        <DotsThree size={16} weight="bold" />
+        <DotsThreeIcon size={16} weight="bold" />
       </button>
 
       {popoverLayer && open && createPortal(
@@ -166,7 +166,7 @@ export function SettingsPopover() {
             <div>
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2 min-w-0">
-                  <ArrowsOutSimple size={14} style={{ color: colors.textTertiary }} />
+                  <ArrowsOutSimpleIcon size={14} style={{ color: colors.textTertiary }} />
                   <div className="text-[12px] font-medium" style={{ color: colors.textPrimary }}>
                     Full width
                   </div>
@@ -188,7 +188,7 @@ export function SettingsPopover() {
             <div>
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2 min-w-0">
-                  <Bell size={14} style={{ color: colors.textTertiary }} />
+                  <BellIcon size={14} style={{ color: colors.textTertiary }} />
                   <div className="text-[12px] font-medium" style={{ color: colors.textPrimary }}>
                     Notification sound
                   </div>
@@ -208,7 +208,7 @@ export function SettingsPopover() {
             <div>
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2 min-w-0">
-                  <Moon size={14} style={{ color: colors.textTertiary }} />
+                  <MoonIcon size={14} style={{ color: colors.textTertiary }} />
                   <div className="text-[12px] font-medium" style={{ color: colors.textPrimary }}>
                     Dark theme
                   </div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Key, Eye, EyeSlash, Check, Plus, PencilSimple, Trash, ArrowLeft } from '@phosphor-icons/react'
+import { KeyIcon, EyeIcon, EyeSlashIcon, CheckIcon, PlusIcon, PencilSimpleIcon, TrashIcon, ArrowLeftIcon } from '@phosphor-icons/react'
 import { useColors } from '../theme'
 
 // ─── Types ───
@@ -163,7 +163,7 @@ function EditPanel({
           onMouseEnter={(e) => { e.currentTarget.style.color = colors.textSecondary }}
           onMouseLeave={(e) => { e.currentTarget.style.color = colors.textTertiary }}
         >
-          <ArrowLeft size={14} />
+          <ArrowLeftIcon size={14} />
         </button>
         <span className="text-[12px] font-medium" style={{ color: colors.textPrimary }}>
           {profile ? '编辑配置' : '新增配置'}
@@ -199,7 +199,7 @@ function EditPanel({
               onMouseLeave={(e) => { e.currentTarget.style.color = colors.textTertiary }}
               title={showToken ? '隐藏' : '显示'}
             >
-              {showToken ? <EyeSlash size={13} /> : <Eye size={13} />}
+              {showToken ? <EyeSlashIcon size={13} /> : <EyeIcon size={13} />}
             </button>
           }
         />
@@ -219,7 +219,7 @@ function EditPanel({
         onMouseEnter={(e) => { if (!saved) e.currentTarget.style.background = colors.sendHover }}
         onMouseLeave={(e) => { if (!saved) e.currentTarget.style.background = colors.accent }}
       >
-        {saved ? <><Check size={13} weight="bold" />已保存</> : '保存'}
+        {saved ? <><CheckIcon size={13} weight="bold" />已保存</> : '保存'}
       </button>
     </div>
   )
@@ -287,7 +287,7 @@ function ProfileRow({
           onMouseLeave={(e) => { e.currentTarget.style.color = colors.textTertiary; e.currentTarget.style.background = 'none' }}
           title="编辑"
         >
-          <PencilSimple size={12} />
+          <PencilSimpleIcon size={12} />
         </button>
         <button
           onClick={onDelete}
@@ -296,7 +296,7 @@ function ProfileRow({
           onMouseLeave={(e) => { e.currentTarget.style.color = colors.textTertiary; e.currentTarget.style.background = 'none' }}
           title="删除"
         >
-          <Trash size={12} />
+          <TrashIcon size={12} />
         </button>
       </div>
     </div>
@@ -353,7 +353,7 @@ export function ApiConfigContent() {
     <div className="flex flex-col gap-2">
       {/* Header */}
       <div className="flex items-center gap-2">
-        <Key size={14} style={{ color: colors.textTertiary }} />
+        <KeyIcon size={14} style={{ color: colors.textTertiary }} />
         <span className="text-[12px] font-medium" style={{ color: colors.textPrimary }}>API 配置</span>
         <span style={{ marginLeft: 'auto', fontSize: 10, color: colors.textTertiary }}>
           {configData.profiles.length} 条
@@ -396,7 +396,7 @@ export function ApiConfigContent() {
         onMouseEnter={(e) => { e.currentTarget.style.color = colors.textPrimary; e.currentTarget.style.borderColor = colors.textTertiary }}
         onMouseLeave={(e) => { e.currentTarget.style.color = colors.textSecondary; e.currentTarget.style.borderColor = colors.containerBorder }}
       >
-        <Plus size={13} />
+        <PlusIcon size={13} />
         新增配置
       </button>
     </div>
@@ -434,7 +434,7 @@ export function ApiConfigButton({
       disabled={disabled}
       style={{ background: active ? colors.inputPillBg : undefined }}
     >
-      <Key size={17} />
+      <KeyIcon size={17} />
       {hasConfig && (
         <span style={{
           position: 'absolute', top: 9, right: 9,

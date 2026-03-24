@@ -1,20 +1,20 @@
 import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, FileText, Image, FileCode, File } from '@phosphor-icons/react'
+import { XIcon, FileTextIcon, ImageIcon, FileCodeIcon, FileIcon } from '@phosphor-icons/react'
 import { useColors } from '../theme'
 import type { Attachment } from '../../shared/types'
 
 const FILE_ICONS: Record<string, React.ReactNode> = {
-  'image/png': <Image size={14} />,
-  'image/jpeg': <Image size={14} />,
-  'image/gif': <Image size={14} />,
-  'image/webp': <Image size={14} />,
-  'image/svg+xml': <Image size={14} />,
-  'text/plain': <FileText size={14} />,
-  'text/markdown': <FileText size={14} />,
-  'application/json': <FileCode size={14} />,
-  'text/yaml': <FileCode size={14} />,
-  'text/toml': <FileCode size={14} />,
+  'image/png': <ImageIcon size={14} />,
+  'image/jpeg': <ImageIcon size={14} />,
+  'image/gif': <ImageIcon size={14} />,
+  'image/webp': <ImageIcon size={14} />,
+  'image/svg+xml': <ImageIcon size={14} />,
+  'text/plain': <FileTextIcon size={14} />,
+  'text/markdown': <FileTextIcon size={14} />,
+  'application/json': <FileCodeIcon size={14} />,
+  'text/yaml': <FileCodeIcon size={14} />,
+  'text/toml': <FileCodeIcon size={14} />,
 }
 
 export function AttachmentChips({
@@ -48,7 +48,7 @@ export function AttachmentChips({
               maxWidth: 200,
             }}
           >
-            {/* Image preview thumbnail */}
+            {/* ImageIcon preview thumbnail */}
             {a.dataUrl ? (
               <img
                 src={a.dataUrl}
@@ -58,11 +58,11 @@ export function AttachmentChips({
               />
             ) : (
               <span className="flex-shrink-0" style={{ color: colors.textTertiary }}>
-                {FILE_ICONS[a.mimeType || ''] || <File size={14} />}
+                {FILE_ICONS[a.mimeType || ''] || <FileIcon size={14} />}
               </span>
             )}
 
-            {/* File name */}
+            {/* FileIcon name */}
             <span
               className="text-[11px] font-medium truncate min-w-0 flex-1"
               style={{ color: colors.textPrimary }}
@@ -76,7 +76,7 @@ export function AttachmentChips({
               className="flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
               style={{ color: colors.textTertiary }}
             >
-              <X size={10} />
+              <XIcon size={10} />
             </button>
           </motion.div>
         ))}

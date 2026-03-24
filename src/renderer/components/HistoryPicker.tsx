@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { motion } from 'framer-motion'
-import { Clock, ChatCircle } from '@phosphor-icons/react'
+import { ClockIcon, ChatCircleIcon } from '@phosphor-icons/react'
 import { useSessionStore } from '../stores/sessionStore'
 import { usePopoverLayer } from './PopoverLayer'
 import { useColors } from '../theme'
@@ -112,7 +112,7 @@ export function HistoryPicker() {
         style={{ color: colors.textTertiary }}
         title="Resume a previous session"
       >
-        <Clock size={13} />
+        <ClockIcon size={13} />
       </button>
 
       {popoverLayer && open && createPortal(
@@ -165,7 +165,7 @@ export function HistoryPicker() {
                 onClick={() => handleSelect(session)}
                 className="w-full flex items-start gap-2.5 px-3 py-2 text-left transition-colors"
               >
-                <ChatCircle size={13} className="flex-shrink-0 mt-0.5" style={{ color: colors.textTertiary }} />
+                <ChatCircleIcon size={13} className="flex-shrink-0 mt-0.5" style={{ color: colors.textTertiary }} />
                 <div className="min-w-0 flex-1">
                   <div className="text-[11px] truncate" style={{ color: colors.textPrimary }}>
                     {session.firstMessage || session.slug || session.sessionId.substring(0, 8)}

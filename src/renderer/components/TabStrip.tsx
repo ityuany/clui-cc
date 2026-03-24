@@ -1,6 +1,6 @@
 import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, X } from '@phosphor-icons/react'
+import { PlusIcon, XIcon } from '@phosphor-icons/react'
 import { useSessionStore } from '../stores/sessionStore'
 import { HistoryPicker } from './HistoryPicker'
 import { SettingsPopover } from './SettingsPopover'
@@ -101,7 +101,7 @@ export function TabStrip() {
                       onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
                       onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = isActive ? '0.5' : '0' }}
                     >
-                      <X size={10} />
+                      <XIcon size={10} />
                     </button>
                   )}
                 </motion.div>
@@ -119,7 +119,7 @@ export function TabStrip() {
           style={{ color: colors.textTertiary }}
           title="New tab"
         >
-          <Plus size={14} />
+          <PlusIcon size={14} />
         </button>
 
         <HistoryPicker />

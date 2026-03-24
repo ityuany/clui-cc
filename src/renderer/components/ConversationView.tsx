@@ -3,9 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import {
-  FileText, PencilSimple, FileArrowUp, Terminal, MagnifyingGlass, Globe,
-  Robot, Question, Wrench, FolderOpen, Copy, Check, CaretRight, CaretDown,
-  SpinnerGap, ArrowCounterClockwise, Square,
+  FileTextIcon, PencilSimpleIcon, FileArrowUpIcon, TerminalIcon, MagnifyingGlassIcon, GlobeIcon,
+  RobotIcon, QuestionIcon, WrenchIcon, FolderOpenIcon, CopyIcon, CheckIcon, CaretRightIcon, CaretDownIcon,
+  SpinnerGapIcon, ArrowCounterClockwiseIcon, SquareIcon,
 } from '@phosphor-icons/react'
 import { useSessionStore } from '../stores/sessionStore'
 import { PermissionCard } from './PermissionCard'
@@ -265,7 +265,7 @@ export function ConversationView() {
                 className="flex items-center gap-1 rounded-full px-2 py-0.5 transition-colors"
                 style={{ color: colors.accent, fontSize: 11 }}
               >
-                <ArrowCounterClockwise size={10} />
+                <ArrowCounterClockwiseIcon size={10} />
                 Retry
               </button>
             </span>
@@ -313,7 +313,7 @@ function EmptyState() {
           cursor: 'pointer',
         }}
       >
-        <FolderOpen size={13} />
+        <FolderOpenIcon size={13} />
         Choose folder
       </button>
       <span className="text-[11px]" style={{ color: colors.textTertiary }}>
@@ -323,7 +323,7 @@ function EmptyState() {
   )
 }
 
-// ─── Copy Button ───
+// ─── CopyIcon Button ───
 
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false)
@@ -350,10 +350,10 @@ function CopyButton({ text }: { text: string }) {
         color: copied ? colors.statusComplete : colors.textTertiary,
         border: 'none',
       }}
-      title="Copy response"
+      title="CopyIcon response"
     >
-      {copied ? <Check size={11} /> : <Copy size={11} />}
-      <span>{copied ? 'Copied' : 'Copy'}</span>
+      {copied ? <CheckIcon size={11} /> : <CopyIcon size={11} />}
+      <span>{copied ? 'Copied' : 'CopyIcon'}</span>
     </motion.button>
   )
 }
@@ -384,7 +384,7 @@ function InterruptButton({ tabId }: { tabId: string }) {
       onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
       title="Stop current task"
     >
-      <Square size={9} weight="fill" />
+      <SquareIcon size={9} weight="fill" />
       <span>Interrupt</span>
     </motion.button>
   )
@@ -511,13 +511,13 @@ function TableScrollWrapper({ children }: { children: React.ReactNode }) {
   )
 }
 
-// ─── Image card — graceful fallback when src returns 404 ───
+// ─── ImageIcon card — graceful fallback when src returns 404 ───
 
 function ImageCard({ src, alt, colors }: { src?: string; alt?: string; colors: ReturnType<typeof useColors> }) {
   const [failed, setFailed] = useState(false)
   // Reset failed state when src changes (e.g. during streaming)
   useEffect(() => { setFailed(false) }, [src])
-  const label = alt || 'Image'
+  const label = alt || 'ImageIcon'
   const open = () => { if (src) window.clui.openExternal(String(src)) }
 
   if (failed || !src) {
@@ -529,8 +529,8 @@ function ImageCard({ src, alt, colors }: { src?: string; alt?: string; colors: R
         onClick={open}
         title={src}
       >
-        <Globe size={12} />
-        Image unavailable{alt ? ` — ${alt}` : ''}
+        <GlobeIcon size={12} />
+        ImageIcon unavailable{alt ? ` — ${alt}` : ''}
       </button>
     )
   }
@@ -594,7 +594,7 @@ const AssistantMessage = React.memo(function AssistantMessage({
           {message.content}
         </Markdown>
       </div>
-      {/* Copy button — always in DOM, shown via CSS :hover (no React state needed).
+      {/* CopyIcon button — always in DOM, shown via CSS :hover (no React state needed).
           Absolute positioning so it never shifts the text layout. */}
       {message.content.trim() && (
         <div className="absolute bottom-0 right-0 opacity-0 group-hover/msg:opacity-100 transition-opacity duration-100">
@@ -680,7 +680,7 @@ function ToolGroup({ tools, skipMotion, hasPermissionPending }: { tools: Message
             className="flex items-center gap-1 cursor-pointer mb-1.5"
             onClick={() => setExpanded(false)}
           >
-            <CaretDown size={10} style={{ color: colors.textMuted }} />
+            <CaretDownIcon size={10} style={{ color: colors.textMuted }} />
             <span className="text-[11px]" style={{ color: colors.textMuted }}>
               Used {tools.length} tool{tools.length !== 1 ? 's' : ''}
             </span>
@@ -712,7 +712,7 @@ function ToolGroup({ tools, skipMotion, hasPermissionPending }: { tools: Message
                     }}
                   >
                     {isRunning
-                      ? <SpinnerGap size={10} className="animate-spin" style={{ color: colors.statusRunning }} />
+                      ? <SpinnerGapIcon size={10} className="animate-spin" style={{ color: colors.statusRunning }} />
                       : <ToolIcon name={toolName} size={10} />
                     }
                   </div>
@@ -775,7 +775,7 @@ function ToolGroup({ tools, skipMotion, hasPermissionPending }: { tools: Message
       className="flex items-start gap-1 cursor-pointer py-[2px]"
       onClick={() => setExpanded(true)}
     >
-      <CaretRight size={10} className="flex-shrink-0 mt-[2px]" style={{ color: colors.textTertiary }} />
+      <CaretRightIcon size={10} className="flex-shrink-0 mt-[2px]" style={{ color: colors.textTertiary }} />
       <span className="text-[11px] leading-[1.4]" style={{ color: colors.textTertiary }}>
         {summary}
       </span>
@@ -833,21 +833,21 @@ function SystemMessage({ message, skipMotion }: { message: Message; skipMotion?:
 function ToolIcon({ name, size = 12 }: { name: string; size?: number }) {
   const colors = useColors()
   const ICONS: Record<string, React.ReactNode> = {
-    Read: <FileText size={size} />,
-    Edit: <PencilSimple size={size} />,
-    Write: <FileArrowUp size={size} />,
-    Bash: <Terminal size={size} />,
-    Glob: <FolderOpen size={size} />,
-    Grep: <MagnifyingGlass size={size} />,
-    WebSearch: <Globe size={size} />,
-    WebFetch: <Globe size={size} />,
-    Agent: <Robot size={size} />,
-    AskUserQuestion: <Question size={size} />,
+    Read: <FileTextIcon size={size} />,
+    Edit: <PencilSimpleIcon size={size} />,
+    Write: <FileArrowUpIcon size={size} />,
+    Bash: <TerminalIcon size={size} />,
+    Glob: <FolderOpenIcon size={size} />,
+    Grep: <MagnifyingGlassIcon size={size} />,
+    WebSearch: <GlobeIcon size={size} />,
+    WebFetch: <GlobeIcon size={size} />,
+    Agent: <RobotIcon size={size} />,
+    AskUserQuestion: <QuestionIcon size={size} />,
   }
 
   return (
     <span className="flex items-center" style={{ color: colors.textTertiary }}>
-      {ICONS[name] || <Wrench size={size} />}
+      {ICONS[name] || <WrenchIcon size={size} />}
     </span>
   )
 }

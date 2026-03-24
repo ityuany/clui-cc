@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, MagnifyingGlass, SpinnerGap, ArrowClockwise, HeadCircuit, Compass, GithubLogo } from '@phosphor-icons/react'
+import { XIcon, MagnifyingGlassIcon, SpinnerGapIcon, ArrowClockwiseIcon, HeadCircuitIcon, CompassIcon, GithubLogoIcon } from '@phosphor-icons/react'
 import { useSessionStore } from '../stores/sessionStore'
 import { useColors } from '../theme'
 import type { CatalogPlugin, PluginStatus } from '../../shared/types'
@@ -105,7 +105,7 @@ export function MarketplacePanel() {
         borderBottom: `1px solid ${colors.containerBorder}`,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <HeadCircuit size={20} weight="regular" style={{ color: colors.accent }} />
+          <HeadCircuitIcon size={20} weight="regular" style={{ color: colors.accent }} />
           <div>
             <div style={{ fontSize: 13, fontWeight: 700, color: colors.textPrimary }}>
               Skills Marketplace
@@ -134,7 +134,7 @@ export function MarketplacePanel() {
             onMouseEnter={(e) => (e.currentTarget.style.color = colors.textPrimary)}
             onMouseLeave={(e) => (e.currentTarget.style.color = colors.textTertiary)}
           >
-            <ArrowClockwise size={14} />
+            <ArrowClockwiseIcon size={14} />
           </button>
           <button
             onClick={closeMarketplace}
@@ -146,7 +146,7 @@ export function MarketplacePanel() {
             onMouseEnter={(e) => (e.currentTarget.style.color = colors.textPrimary)}
             onMouseLeave={(e) => (e.currentTarget.style.color = colors.textTertiary)}
           >
-            <X size={14} />
+            <XIcon size={14} />
           </button>
         </div>
       </div>
@@ -164,7 +164,7 @@ export function MarketplacePanel() {
           minWidth: 0,
           flex: 1,
         }}>
-          <MagnifyingGlass size={13} style={{ color: colors.textTertiary, flexShrink: 0 }} />
+          <MagnifyingGlassIcon size={13} style={{ color: colors.textTertiary, flexShrink: 0 }} />
           <input
             type="text"
             placeholder="Search skills, tags, authors..."
@@ -199,7 +199,7 @@ export function MarketplacePanel() {
           onMouseEnter={(e) => { e.currentTarget.style.borderColor = colors.accent }}
           onMouseLeave={(e) => { e.currentTarget.style.borderColor = colors.accentBorderMedium }}
         >
-          <Compass size={12} weight="regular" />
+          <CompassIcon size={12} weight="regular" />
           Build your own
         </button>
       </div>
@@ -362,7 +362,7 @@ function PluginCard({ plugin, status, colors, expanded, onToggleExpand, scrollCo
       onMouseEnter={(e) => (e.currentTarget.style.color = colors.textPrimary)}
       onMouseLeave={(e) => (e.currentTarget.style.color = colors.textTertiary)}
     >
-      <GithubLogo size={14} />
+      <GithubLogoIcon size={14} />
     </button>
   )
 
@@ -483,7 +483,7 @@ function PluginCard({ plugin, status, colors, expanded, onToggleExpand, scrollCo
                 transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
                 style={{ display: 'flex' }}
               >
-                <SpinnerGap size={14} style={{ color: colors.accent }} />
+                <SpinnerGapIcon size={14} style={{ color: colors.accent }} />
               </motion.div>
               <span style={{ fontSize: 11, color: colors.textSecondary }}>Installing plugin...</span>
             </div>
@@ -569,7 +569,7 @@ function StatusButton({ status, colors, onClick, onUninstall }: {
             transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
             style={{ display: 'flex' }}
           >
-            <SpinnerGap size={10} />
+            <SpinnerGapIcon size={10} />
           </motion.div>
           Installing...
         </span>
@@ -683,7 +683,7 @@ function ErrorState({ error, colors, onRetry }: {
           display: 'inline-flex', alignItems: 'center', gap: 4,
         }}
       >
-        <ArrowClockwise size={11} /> Retry
+        <ArrowClockwiseIcon size={11} /> Retry
       </button>
     </div>
   )
