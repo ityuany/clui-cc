@@ -6,6 +6,7 @@ import { ConversationView } from './components/ConversationView'
 import { InputBar } from './components/InputBar'
 import { StatusBar } from './components/StatusBar'
 import { MarketplacePanel } from './components/MarketplacePanel'
+import { ApiConfigPopover } from './components/ApiConfigPopover'
 import { PopoverLayerProvider } from './components/PopoverLayer'
 import { useClaudeEvents } from './hooks/useClaudeEvents'
 import { useHealthReconciliation } from './hooks/useHealthReconciliation'
@@ -231,7 +232,7 @@ export default function App() {
                 >
                   <Camera size={17} />
                 </button>
-                {/* btn-3: Skills (back, leftmost) */}
+                {/* btn-3: Skills (back) */}
                 <button
                   className="stack-btn stack-btn-3 glass-surface"
                   title="Skills & Plugins"
@@ -240,6 +241,8 @@ export default function App() {
                 >
                   <HeadCircuit size={17} />
                 </button>
+                {/* btn-4: API Config (leftmost) */}
+                <ApiConfigPopover disabled={isRunning} />
               </div>
             </div>
 
