@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Terminal, CaretDown, Check, FolderOpen, Plus, X, ShieldCheck } from '@phosphor-icons/react'
+import { Terminal, CaretDown, Check, FolderOpen, Plus, X, ShieldCheck, UserCircle, Key } from '@phosphor-icons/react'
 import { useSessionStore, AVAILABLE_MODELS, getModelDisplayLabel } from '../stores/sessionStore'
 import { usePopoverLayer } from './PopoverLayer'
 import { useColors } from '../theme'
+import { loadApiConfig, loadApiConfigData } from './ApiConfigPopover'
 
 /* ─── Model Picker (inline — tightly coupled to StatusBar) ─── */
 
@@ -247,6 +248,40 @@ function PermissionModePicker() {
   )
 }
 
+/* ─── AccountSource ─── */
+
+function AccountSource() {
+  const colors = useColors()
+  const staticInfo = useSessionStore((s) => s.staticInfo)
+  const togglePanel = useSessionStore((s) => s.togglePanel)
+
+  const cfg = loadApiConfigData()
+  const activeProfile = cfg.activeId ? cfg.profiles.find(p => p.id === cfg.activeId) : null
+
+  if (!activeProfile && !staticInfo?.email) return null
+
+  const label = activeProfile ? activeProfile.name : staticInfo!.email!
+  const isProfile = !!activeProfile
+
+  return (
+    <>
+      <span style={{ color: colors.textMuted, fontSize: 10 }}>|</span>
+      <button
+        onClick={() => togglePanel('api-config')}
+        className="flex items-center gap-1 text-[10px] rounded-full px-1.5 py-0.5 transition-colors"
+        style={{ color: colors.textTertiary, maxWidth: 120 }}
+        title={isProfile ? `API Profile: ${label}` : `Logged in as ${label}`}
+      >
+        {isProfile
+          ? <Key size={10} style={{ flexShrink: 0 }} />
+          : <UserCircle size={10} style={{ flexShrink: 0 }} />
+        }
+        <span className="truncate">{label}</span>
+      </button>
+    </>
+  )
+}
+
 /* ─── StatusBar ─── */
 
 /** Get a compact display path: basename for deep paths, ~ for home */
@@ -433,6 +468,8 @@ export function StatusBar() {
         <span style={{ color: colors.textMuted, fontSize: 10 }}>|</span>
 
         <PermissionModePicker />
+
+        <AccountSource />
       </div>
 
       {/* Right — Open in CLI */}

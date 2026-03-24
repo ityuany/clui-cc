@@ -47,6 +47,10 @@ function saveConfigData(data: ApiConfigData): void {
   try { localStorage.setItem(CONFIG_V2_KEY, JSON.stringify(data)) } catch {}
 }
 
+export function loadApiConfigData() {
+  return loadConfigData()
+}
+
 export function loadApiConfig(): { baseUrl: string; authToken: string } {
   const data = loadConfigData()
   if (data.activeId) {
