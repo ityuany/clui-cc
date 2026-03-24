@@ -125,12 +125,15 @@ export class RunManager extends EventEmitter {
     return 'claude'
   }
 
-  private _getEnv(): NodeJS.ProcessEnv {
+  private _getEnv(options?: RunOptions): NodeJS.ProcessEnv {
     const env = getCliEnv()
     const binDir = this.claudeBinary.substring(0, this.claudeBinary.lastIndexOf('/'))
     if (env.PATH && !env.PATH.includes(binDir)) {
       env.PATH = `${binDir}:${env.PATH}`
     }
+
+    if (options?.apiBaseUrl) env.ANTHROPIC_BASE_URL = options.apiBaseUrl
+    if (options?.apiAuthToken) env.ANTHROPIC_AUTH_TOKEN = options.apiAuthToken
 
     return env
   }
@@ -200,7 +203,7 @@ export class RunManager extends EventEmitter {
     const child = spawn(this.claudeBinary, args, {
       stdio: ['pipe', 'pipe', 'pipe'],
       cwd,
-      env: this._getEnv(),
+      env: this._getEnv(options),
     })
 
     log(`Spawned PID: ${child.pid}`)

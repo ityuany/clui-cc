@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import type { TabStatus, NormalizedEvent, EnrichedError, Message, TabState, Attachment, CatalogPlugin, PluginStatus } from '../../shared/types'
 import { useThemeStore } from '../theme'
 import notificationSrc from '../../../resources/notification.mp3'
+import { loadApiConfig } from '../components/ApiConfigPopover'
 
 // ─── Known models ───
 
@@ -615,12 +616,15 @@ export const useSessionStore = create<State>((set, get) => ({
 
     // Send to backend — ControlPlane will queue if a run is active
     const { preferredModel } = get()
+    const apiCfg = loadApiConfig()
     window.clui.prompt(activeTabId, requestId, {
       prompt: fullPrompt,
       projectPath: resolvedPath,
       sessionId: tab.claudeSessionId || undefined,
       model: preferredModel || undefined,
       addDirs: tab.additionalDirs.length > 0 ? tab.additionalDirs : undefined,
+      apiBaseUrl: apiCfg.baseUrl || undefined,
+      apiAuthToken: apiCfg.authToken || undefined,
     }).catch((err: Error) => {
       get().handleError(activeTabId, {
         message: err.message,

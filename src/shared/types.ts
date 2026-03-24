@@ -221,6 +221,9 @@ export interface RunOptions {
   hookSettingsPath?: string
   /** Extra directories to add via --add-dir (session-preserving) */
   addDirs?: string[]
+  /** API profile overrides injected as env vars into the claude process */
+  apiBaseUrl?: string
+  apiAuthToken?: string
 }
 
 // ─── Control Plane Types ───
