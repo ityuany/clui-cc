@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import type { TabStatus, NormalizedEvent, EnrichedError, Message, TabState, Attachment, CatalogPlugin, PluginStatus } from '../../shared/types'
 import { useThemeStore } from '../theme'
 import notificationSrc from '../../../resources/notification.mp3'
-import { loadApiConfig } from '../components/ApiConfigPopover'
+import { loadApiConfig, loadApiConfigData } from '../components/ApiConfigPopover'
 
 // ─── Known models ───
 
