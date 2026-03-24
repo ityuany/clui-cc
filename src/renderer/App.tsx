@@ -192,15 +192,17 @@ export default function App() {
             <motion.div
               initial={false}
               animate={{
-                height: isExpanded ? 'auto' : 12,
-                minHeight: isExpanded ? 200 : 0,
+                height: isExpanded ? 600 : 12,
+                minHeight: isExpanded ? 600 : 0,
                 opacity: isExpanded ? 1 : 0,
               }}
               transition={TRANSITION}
               className="overflow-hidden no-drag"
             >
-              <div style={{ maxHeight: bodyMaxHeight }}>
-                <ConversationView />
+              <div style={{ height: bodyMaxHeight, display: 'flex', flexDirection: 'column' }}>
+                <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
+                  <ConversationView />
+                </div>
                 <StatusBar />
               </div>
             </motion.div>
