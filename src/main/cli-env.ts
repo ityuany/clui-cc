@@ -2,6 +2,44 @@ import { execSync } from 'child_process'
 
 let cachedPath: string | null = null
 
+// Env vars that may be set in .zshrc/.bashrc but not inherited by GUI apps
+const SHELL_ENV_VARS = [
+  'ANTHROPIC_AUTH_TOKEN',
+  'ANTHROPIC_API_KEY',
+  'ANTHROPIC_BASE_URL',
+]
+
+let cachedShellEnv: Record<string, string> | null = null
+
+function getShellEnv(): Record<string, string> {
+  if (cachedShellEnv) return cachedShellEnv
+  cachedShellEnv = {}
+
+  const varList = SHELL_ENV_VARS.join(' ')
+  const commands = [
+    `/bin/zsh -ilc "echo ${SHELL_ENV_VARS.map(v => `$${v}`).join('|||')}"`,
+    `/bin/bash -lc "echo ${SHELL_ENV_VARS.map(v => `$${v}`).join('|||')}"`,
+  ]
+
+  for (const cmd of commands) {
+    try {
+      const out = execSync(cmd, { encoding: 'utf-8', timeout: 3000 }).trim()
+      const parts = out.split('|||')
+      if (parts.length === SHELL_ENV_VARS.length) {
+        for (let i = 0; i < SHELL_ENV_VARS.length; i++) {
+          const val = parts[i].trim()
+          if (val) cachedShellEnv[SHELL_ENV_VARS[i]] = val
+        }
+        break
+      }
+    } catch {
+      // Try next shell
+    }
+  }
+
+  return cachedShellEnv
+}
+
 function appendPathEntries(target: string[], seen: Set<string>, rawPath: string | undefined): void {
   if (!rawPath) return
   for (const entry of rawPath.split(':')) {
@@ -47,6 +85,7 @@ export function getCliPath(): string {
 export function getCliEnv(extraEnv?: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
   const env: NodeJS.ProcessEnv = {
     ...process.env,
+    ...getShellEnv(), // pick up vars defined in .zshrc/.bashrc not inherited by GUI apps
     ...extraEnv,
     PATH: getCliPath(),
   }

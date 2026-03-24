@@ -179,7 +179,7 @@ function EditPanel({
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <div className="text-[11px]" style={{ color: colors.textTertiary }}>ANTHROPIC_API_KEY</div>
+        <div className="text-[11px]" style={{ color: colors.textTertiary }}>ANTHROPIC_AUTH_TOKEN</div>
         <ConfigInput
           type={showToken ? 'text' : 'password'}
           value={authToken}

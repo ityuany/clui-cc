@@ -133,7 +133,7 @@ export class RunManager extends EventEmitter {
     }
 
     if (options?.apiBaseUrl) env.ANTHROPIC_BASE_URL = options.apiBaseUrl
-    if (options?.apiAuthToken) env.ANTHROPIC_API_KEY = options.apiAuthToken
+    if (options?.apiAuthToken) env.ANTHROPIC_AUTH_TOKEN = options.apiAuthToken
 
     return env
   }
