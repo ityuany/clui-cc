@@ -346,13 +346,13 @@ ipcMain.handle(IPC.CLOSE_TAB, (_event, tabId: string) => {
   controlPlane.closeTab(tabId)
 })
 
-ipcMain.on(IPC.SET_PERMISSION_MODE, (_event, mode: string) => {
+ipcMain.on(IPC.SET_PERMISSION_MODE, (_event, tabId: string, mode: string) => {
   if (mode !== 'ask' && mode !== 'auto') {
     log(`IPC SET_PERMISSION_MODE: invalid mode "${mode}" — ignoring`)
     return
   }
-  log(`IPC SET_PERMISSION_MODE: ${mode}`)
-  controlPlane.setPermissionMode(mode)
+  log(`IPC SET_PERMISSION_MODE: tab=${tabId} mode=${mode}`)
+  controlPlane.setPermissionMode(tabId, mode)
 })
 
 ipcMain.handle(IPC.RESPOND_PERMISSION, (_event, { tabId, questionId, optionId }: { tabId: string; questionId: string; optionId: string }) => {

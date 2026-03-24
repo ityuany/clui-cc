@@ -10,12 +10,12 @@ import { loadApiConfig, loadApiConfigData } from './ApiConfigPopover'
 /* ─── Model Picker (inline — tightly coupled to StatusBar) ─── */
 
 function ModelPicker() {
-  const preferredModel = useSessionStore((s) => s.preferredModel)
   const setPreferredModel = useSessionStore((s) => s.setPreferredModel)
   const tab = useSessionStore(
     (s) => s.tabs.find((t) => t.id === s.activeTabId),
-    (a, b) => a === b || (!!a && !!b && a.status === b.status && a.sessionModel === b.sessionModel),
+    (a, b) => a === b || (!!a && !!b && a.status === b.status && a.sessionModel === b.sessionModel && a.preferredModel === b.preferredModel),
   )
+  const preferredModel = tab?.preferredModel ?? null
   const popoverLayer = usePopoverLayer()
   const colors = useColors()
 
@@ -131,8 +131,12 @@ function ModelPicker() {
 /* ─── Permission Mode Picker (global — affects all tabs) ─── */
 
 function PermissionModePicker() {
-  const permissionMode = useSessionStore((s) => s.permissionMode)
   const setPermissionMode = useSessionStore((s) => s.setPermissionMode)
+  const tab = useSessionStore(
+    (s) => s.tabs.find((t) => t.id === s.activeTabId),
+    (a, b) => a === b || (!!a && !!b && a.permissionMode === b.permissionMode),
+  )
+  const permissionMode = tab?.permissionMode ?? 'ask'
   const popoverLayer = usePopoverLayer()
   const colors = useColors()
 
@@ -179,7 +183,7 @@ function PermissionModePicker() {
           color: colors.textTertiary,
           cursor: 'pointer',
         }}
-        title="Permission mode (global)"
+        title="Permission mode"
       >
         <ShieldCheck size={11} weight={isAuto ? 'fill' : 'regular'} />
         {isAuto ? 'Auto' : 'Ask'}
@@ -254,9 +258,16 @@ function AccountSource() {
   const colors = useColors()
   const staticInfo = useSessionStore((s) => s.staticInfo)
   const togglePanel = useSessionStore((s) => s.togglePanel)
+  const tab = useSessionStore(
+    (s) => s.tabs.find((t) => t.id === s.activeTabId),
+    (a, b) => a === b || (!!a && !!b && a.apiProfileId === b.apiProfileId),
+  )
 
   const cfg = loadApiConfigData()
-  const activeProfile = cfg.activeId ? cfg.profiles.find(p => p.id === cfg.activeId) : null
+  // Prefer per-tab profile, fall back to globally active profile
+  const activeProfile = tab?.apiProfileId
+    ? cfg.profiles.find((p) => p.id === tab.apiProfileId) ?? null
+    : cfg.activeId ? cfg.profiles.find((p) => p.id === cfg.activeId) ?? null : null
 
   if (!activeProfile && !staticInfo?.email) return null
 

@@ -57,10 +57,6 @@ interface State {
   isExpanded: boolean
   /** Global info fetched on startup (not per-session) */
   staticInfo: StaticInfo | null
-  /** User's preferred model override (null = use default) */
-  preferredModel: string | null
-  /** Global permission mode: 'ask' shows cards, 'auto' auto-approves all tool calls */
-  permissionMode: 'ask' | 'auto'
 
   // Panel state — only one panel can be open at a time
   activePanelId: 'marketplace' | 'api-config' | null
@@ -76,6 +72,7 @@ interface State {
   initStaticInfo: () => Promise<void>
   setPreferredModel: (model: string | null) => void
   setPermissionMode: (mode: 'ask' | 'auto') => void
+  setApiProfile: (profileId: string | null) => void
   createTab: () => Promise<string>
   selectTab: (tabId: string) => void
   closeTab: (tabId: string) => void
@@ -147,6 +144,9 @@ function makeLocalTab(): TabState {
     workingDirectory: '~',
     hasChosenDirectory: false,
     additionalDirs: [],
+    preferredModel: null,
+    permissionMode: 'ask',
+    apiProfileId: null,
   }
 }
 
@@ -157,8 +157,6 @@ export const useSessionStore = create<State>((set, get) => ({
   activeTabId: initialTab.id,
   isExpanded: false,
   staticInfo: null,
-  preferredModel: null,
-  permissionMode: 'ask',
 
   // Panel
   activePanelId: null,
@@ -186,12 +184,19 @@ export const useSessionStore = create<State>((set, get) => ({
   },
 
   setPreferredModel: (model) => {
-    set({ preferredModel: model })
+    const { activeTabId } = get()
+    set((s) => ({ tabs: s.tabs.map((t) => t.id === activeTabId ? { ...t, preferredModel: model } : t) }))
   },
 
   setPermissionMode: (mode) => {
-    set({ permissionMode: mode })
-    window.clui.setPermissionMode(mode)
+    const { activeTabId } = get()
+    set((s) => ({ tabs: s.tabs.map((t) => t.id === activeTabId ? { ...t, permissionMode: mode } : t) }))
+    window.clui.setPermissionMode(activeTabId, mode)
+  },
+
+  setApiProfile: (profileId) => {
+    const { activeTabId } = get()
+    set((s) => ({ tabs: s.tabs.map((t) => t.id === activeTabId ? { ...t, apiProfileId: profileId } : t) }))
   },
 
   createTab: async () => {
@@ -615,13 +620,19 @@ export const useSessionStore = create<State>((set, get) => ({
     }))
 
     // Send to backend — ControlPlane will queue if a run is active
-    const { preferredModel } = get()
-    const apiCfg = loadApiConfig()
+    const apiCfg = (() => {
+      if (tab.apiProfileId) {
+        const d = loadApiConfigData()
+        const p = d.profiles.find((x) => x.id === tab.apiProfileId)
+        if (p) return { baseUrl: p.baseUrl, authToken: p.authToken }
+      }
+      return loadApiConfig()
+    })()
     window.clui.prompt(activeTabId, requestId, {
       prompt: fullPrompt,
       projectPath: resolvedPath,
       sessionId: tab.claudeSessionId || undefined,
-      model: preferredModel || undefined,
+      model: tab.preferredModel || undefined,
       addDirs: tab.additionalDirs.length > 0 ? tab.additionalDirs : undefined,
       apiBaseUrl: apiCfg.baseUrl || undefined,
       apiAuthToken: apiCfg.authToken || undefined,

@@ -39,9 +39,9 @@ export function InputBar() {
 
   const setPreferredModel = useSessionStore((s) => s.setPreferredModel)
   const staticInfo = useSessionStore((s) => s.staticInfo)
-  const preferredModel = useSessionStore((s) => s.preferredModel)
   const activeTabId = useSessionStore((s) => s.activeTabId)
   const tab = useSessionStore((s) => s.tabs.find((t) => t.id === s.activeTabId))
+  const preferredModel = tab?.preferredModel ?? null
   const colors = useColors()
   const isBusy = tab?.status === 'running' || tab?.status === 'connecting'
   const isConnecting = tab?.status === 'connecting'

@@ -71,8 +71,8 @@ export class ControlPlane extends EventEmitter {
   private permissionServer: PermissionServer
   /** Per-run tokens: requestId → runToken (for cleanup on exit/error) */
   private runTokens = new Map<string, string>()
-  /** Global permission mode: 'ask' shows cards, 'auto' auto-approves */
-  private permissionMode: 'ask' | 'auto' = 'ask'
+  /** Per-tab permission mode: 'ask' shows cards, 'auto' auto-approves */
+  private tabPermissionModes = new Map<string, 'ask' | 'auto'>()
   /** Resolves when the permission server is ready (or failed). Dispatch awaits this. */
   private hookServerReady: Promise<void>
 
@@ -105,10 +105,11 @@ export class ControlPlane extends EventEmitter {
         return
       }
 
-      log(`Permission request [${questionId}]: tool=${toolRequest.tool_name} tab=${tabId.substring(0, 8)}… mode=${this.permissionMode}`)
+      const tabMode = this.tabPermissionModes.get(tabId) ?? 'ask'
+      log(`Permission request [${questionId}]: tool=${toolRequest.tool_name} tab=${tabId.substring(0, 8)}… mode=${tabMode}`)
 
       // Auto mode: immediately allow without showing UI
-      if (this.permissionMode === 'auto') {
+      if (tabMode === 'auto') {
         this.permissionServer.respondToPermission(questionId, 'allow', 'Auto mode')
         return
       }
@@ -479,12 +480,12 @@ export class ControlPlane extends EventEmitter {
   }
 
   /**
-   * Set global permission mode.
+   * Set per-tab permission mode.
    * 'ask' = show permission cards, 'auto' = auto-approve all tool calls.
    */
-  setPermissionMode(mode: 'ask' | 'auto'): void {
-    log(`Permission mode set to: ${mode}`)
-    this.permissionMode = mode
+  setPermissionMode(tabId: string, mode: 'ask' | 'auto'): void {
+    log(`Permission mode set to: ${mode} for tab ${tabId.substring(0, 8)}…`)
+    this.tabPermissionModes.set(tabId, mode)
   }
 
   closeTab(tabId: string): void {
@@ -516,6 +517,7 @@ export class ControlPlane extends EventEmitter {
     })
 
     this.tabs.delete(tabId)
+    this.tabPermissionModes.delete(tabId)
     log(`Tab closed: ${tabId}`)
   }
 

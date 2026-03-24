@@ -170,6 +170,12 @@ export interface TabState {
   hasChosenDirectory: boolean
   /** Extra directories accessible via --add-dir (session-preserving) */
   additionalDirs: string[]
+  /** Per-tab preferred model override (null = use default) */
+  preferredModel: string | null
+  /** Per-tab permission mode */
+  permissionMode: 'ask' | 'auto'
+  /** Per-tab API profile ID (null = use globally active profile) */
+  apiProfileId: string | null
 }
 
 export interface Message {
