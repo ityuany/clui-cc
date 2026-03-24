@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, dialog, screen, globalShortcut, Tray, Menu, nativeImage, nativeTheme, shell, systemPreferences } from 'electron'
+import { app, BrowserWindow, ipcMain, dialog, screen, globalShortcut, Tray, Menu, nativeImage, nativeTheme, shell, systemPreferences, Notification } from 'electron'
 import { join } from 'path'
 import { existsSync, readdirSync, statSync, createReadStream } from 'fs'
 import { createInterface } from 'readline'
@@ -80,6 +80,20 @@ function scheduleToggleSnapshots(toggleId: number, phase: 'show' | 'hide'): void
 
 controlPlane.on('event', (tabId: string, event: NormalizedEvent) => {
   broadcast('clui:normalized-event', tabId, event)
+
+  // Send macOS native notification for permission requests so the user
+  // is alerted even when the CLUI window is collapsed or hidden.
+  if (event.type === 'permission_request' && Notification.isSupported()) {
+    const n = new Notification({
+      title: 'CLUI — 需要授权',
+      body: `工具 ${event.toolName} 正在请求权限，点击查看`,
+      silent: false,
+    })
+    n.on('click', () => {
+      showWindow('permission-notification')
+    })
+    n.show()
+  }
 })
 
 controlPlane.on('tab-status-change', (tabId: string, newStatus: string, oldStatus: string) => {

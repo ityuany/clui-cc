@@ -641,6 +641,7 @@ export const useSessionStore = create<State>((set, get) => ({
   handleNormalizedEvent: (tabId, event) => {
     set((s) => {
       const { activeTabId } = s
+      let shouldExpand = false
       const tabs = s.tabs.map((tab) => {
         if (tab.id !== tabId) return tab
         const updated = { ...tab }
@@ -869,6 +870,8 @@ export const useSessionStore = create<State>((set, get) => ({
             }
             updated.permissionQueue = [...updated.permissionQueue, newReq]
             updated.currentActivity = `Waiting for permission: ${event.toolName}`
+            // Auto-expand window so the permission card is visible
+            shouldExpand = true
             break
           }
 
@@ -890,7 +893,7 @@ export const useSessionStore = create<State>((set, get) => ({
         return updated
       })
 
-      return { tabs }
+      return shouldExpand ? { tabs, isExpanded: true } : { tabs }
     })
   },
 
