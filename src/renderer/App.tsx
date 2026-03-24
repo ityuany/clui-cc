@@ -193,6 +193,7 @@ export default function App() {
               initial={false}
               animate={{
                 height: isExpanded ? 'auto' : 12,
+                minHeight: isExpanded ? 200 : 0,
                 opacity: isExpanded ? 1 : 0,
               }}
               transition={TRANSITION}
