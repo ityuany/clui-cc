@@ -257,29 +257,55 @@ function PermissionModePicker() {
 function AccountSource() {
   const colors = useColors()
   const staticInfo = useSessionStore((s) => s.staticInfo)
+  const setApiProfile = useSessionStore((s) => s.setApiProfile)
   const togglePanel = useSessionStore((s) => s.togglePanel)
   const tab = useSessionStore(
     (s) => s.tabs.find((t) => t.id === s.activeTabId),
     (a, b) => a === b || (!!a && !!b && a.apiProfileId === b.apiProfileId),
   )
+  const popoverLayer = usePopoverLayer()
+
+  const [open, setOpen] = useState(false)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const popoverRef = useRef<HTMLDivElement>(null)
+  const [pos, setPos] = useState({ bottom: 0, left: 0 })
 
   const cfg = loadApiConfigData()
-  // Prefer per-tab profile, fall back to globally active profile
-  const activeProfile = tab?.apiProfileId
-    ? cfg.profiles.find((p) => p.id === tab.apiProfileId) ?? null
-    : cfg.activeId ? cfg.profiles.find((p) => p.id === cfg.activeId) ?? null : null
+  const activeProfileId = tab?.apiProfileId ?? cfg.activeId ?? null
+  const activeProfile = activeProfileId ? cfg.profiles.find((p) => p.id === activeProfileId) ?? null : null
+
+  useEffect(() => {
+    if (!open) return
+    const handler = (e: MouseEvent) => {
+      const target = e.target as Node
+      if (triggerRef.current?.contains(target)) return
+      if (popoverRef.current?.contains(target)) return
+      setOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [open])
 
   if (!activeProfile && !staticInfo?.email) return null
 
   const label = activeProfile ? activeProfile.name : staticInfo!.email!
   const isProfile = !!activeProfile
 
+  const handleToggle = () => {
+    if (!open && triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect()
+      setPos({ bottom: window.innerHeight - rect.top + 6, left: rect.left })
+    }
+    setOpen((o) => !o)
+  }
+
   return (
     <>
       <span style={{ color: colors.textMuted, fontSize: 10 }}>|</span>
       <button
-        onClick={() => togglePanel('api-config')}
-        className="flex items-center gap-1 text-[10px] rounded-full px-1.5 py-0.5 transition-colors"
+        ref={triggerRef}
+        onClick={handleToggle}
+        className="flex items-center gap-0.5 text-[10px] rounded-full px-1.5 py-0.5 transition-colors"
         style={{ color: colors.textTertiary, maxWidth: 120 }}
         title={isProfile ? `API Profile: ${label}` : `Logged in as ${label}`}
       >
@@ -288,7 +314,89 @@ function AccountSource() {
           : <UserCircle size={10} style={{ flexShrink: 0 }} />
         }
         <span className="truncate">{label}</span>
+        <CaretDown size={10} style={{ opacity: 0.6, flexShrink: 0 }} />
       </button>
+
+      {popoverLayer && open && createPortal(
+        <motion.div
+          ref={popoverRef}
+          data-clui-ui
+          initial={{ opacity: 0, y: 4 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 4 }}
+          transition={{ duration: 0.12 }}
+          className="rounded-xl"
+          style={{
+            position: 'fixed',
+            bottom: pos.bottom,
+            left: pos.left,
+            width: 200,
+            pointerEvents: 'auto',
+            background: colors.popoverBg,
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            boxShadow: colors.popoverShadow,
+            border: `1px solid ${colors.popoverBorder}`,
+          }}
+        >
+          <div className="py-1">
+            {/* Claude account row (if logged in) */}
+            {staticInfo?.email && (
+              <button
+                onClick={() => { setApiProfile(null); setOpen(false) }}
+                className="w-full flex items-center justify-between px-3 py-1.5 text-[11px] transition-colors"
+                style={{
+                  color: activeProfileId === null ? colors.textPrimary : colors.textSecondary,
+                  fontWeight: activeProfileId === null ? 600 : 400,
+                }}
+              >
+                <span className="flex items-center gap-1.5 min-w-0">
+                  <UserCircle size={11} style={{ flexShrink: 0 }} />
+                  <span className="truncate">{staticInfo.email}</span>
+                </span>
+                {activeProfileId === null && <Check size={12} style={{ color: colors.accent, flexShrink: 0 }} />}
+              </button>
+            )}
+
+            {/* API profiles */}
+            {cfg.profiles.length > 0 && (
+              <>
+                {staticInfo?.email && <div className="mx-2 my-0.5" style={{ height: 1, background: colors.popoverBorder }} />}
+                {cfg.profiles.map((p) => {
+                  const isSelected = activeProfileId === p.id
+                  return (
+                    <button
+                      key={p.id}
+                      onClick={() => { setApiProfile(p.id); setOpen(false) }}
+                      className="w-full flex items-center justify-between px-3 py-1.5 text-[11px] transition-colors"
+                      style={{
+                        color: isSelected ? colors.textPrimary : colors.textSecondary,
+                        fontWeight: isSelected ? 600 : 400,
+                      }}
+                    >
+                      <span className="flex items-center gap-1.5 min-w-0">
+                        <Key size={11} style={{ flexShrink: 0 }} />
+                        <span className="truncate">{p.name}</span>
+                      </span>
+                      {isSelected && <Check size={12} style={{ color: colors.accent, flexShrink: 0 }} />}
+                    </button>
+                  )
+                })}
+              </>
+            )}
+
+            <div className="mx-2 my-0.5" style={{ height: 1, background: colors.popoverBorder }} />
+            <button
+              onClick={() => { setOpen(false); togglePanel('api-config') }}
+              className="w-full flex items-center px-3 py-1.5 text-[11px] transition-colors"
+              style={{ color: colors.textTertiary }}
+            >
+              管理 API 配置...
+            </button>
+          </div>
+        </motion.div>,
+        popoverLayer,
+      )}
     </>
   )
 }
