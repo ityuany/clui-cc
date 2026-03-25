@@ -1,3 +1,10 @@
+// Suppress EIO/EPIPE on stdout/stderr when launched as a GUI app without a terminal
+for (const stream of [process.stdout, process.stderr] as const) {
+  stream?.on('error', (err: NodeJS.ErrnoException) => {
+    if (err.code !== 'EIO' && err.code !== 'EPIPE') throw err
+  })
+}
+
 import { app, BrowserWindow, ipcMain, dialog, screen, globalShortcut, Tray, Menu, nativeImage, nativeTheme, shell, systemPreferences, Notification } from 'electron'
 import { join } from 'path'
 import { existsSync, readdirSync, statSync, createReadStream } from 'fs'

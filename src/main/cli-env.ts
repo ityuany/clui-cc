@@ -15,16 +15,16 @@ function getShellEnv(): Record<string, string> {
   if (cachedShellEnv) return cachedShellEnv
   cachedShellEnv = {}
 
-  const varList = SHELL_ENV_VARS.join(' ')
+  const SEP = '__CLUI__'
   const commands = [
-    `/bin/zsh -ilc "echo ${SHELL_ENV_VARS.map(v => `$${v}`).join('|||')}"`,
-    `/bin/bash -lc "echo ${SHELL_ENV_VARS.map(v => `$${v}`).join('|||')}"`,
+    `/bin/zsh -ilc "echo ${SHELL_ENV_VARS.map(v => `\${${v}}`).join(SEP)}"`,
+    `/bin/bash -lc "echo ${SHELL_ENV_VARS.map(v => `\${${v}}`).join(SEP)}"`,
   ]
 
   for (const cmd of commands) {
     try {
       const out = execSync(cmd, { encoding: 'utf-8', timeout: 3000 }).trim()
-      const parts = out.split('|||')
+      const parts = out.split(SEP)
       if (parts.length === SHELL_ENV_VARS.length) {
         for (let i = 0; i < SHELL_ENV_VARS.length; i++) {
           const val = parts[i].trim()
