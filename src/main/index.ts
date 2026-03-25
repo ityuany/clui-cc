@@ -14,6 +14,21 @@ import type { RunOptions, NormalizedEvent, EnrichedError } from '../shared/types
 const DEBUG_MODE = process.env.CLUI_DEBUG === '1'
 const SPACES_DEBUG = DEBUG_MODE || process.env.CLUI_SPACES_DEBUG === '1'
 
+// Suppress EIO/EPIPE uncaught exceptions that Electron throws when the renderer
+// process closes its stdio streams (e.g. when the window is hidden via keyboard
+// shortcut). Electron's built-in dialog only shows when listenerCount === 1;
+// registering our own handler suppresses the dialog while still logging the error.
+process.on('uncaughtException', (err: Error) => {
+  const code = (err as NodeJS.ErrnoException).code
+  if (code === 'EIO' || code === 'EPIPE') {
+    _log('main', `[suppressed] uncaughtException ${code}: ${err.message}`)
+    return
+  }
+  // Re-throw anything else so genuine crashes are not silenced.
+  _log('main', `uncaughtException: ${err.stack ?? err.message}`)
+  throw err
+})
+
 function log(msg: string): void {
   _log('main', msg)
 }
@@ -200,10 +215,6 @@ function showWindow(source = 'unknown'): void {
   // without deactivating the active app — hover preserved everywhere.
   mainWindow.show()
   mainWindow.webContents.focus()
-  // Re-open DevTools in dev mode (was closed on hide to avoid dangling CDP IPC channel)
-  if (process.env.ELECTRON_RENDERER_URL && !mainWindow.webContents.isDevToolsOpened()) {
-    mainWindow.webContents.openDevTools({ mode: 'detach' })
-  }
   broadcast(IPC.WINDOW_SHOWN)
   if (SPACES_DEBUG) scheduleToggleSnapshots(toggleId, 'show')
 }
@@ -217,10 +228,6 @@ function toggleWindow(source = 'unknown'): void {
   }
 
   if (mainWindow.isVisible()) {
-    // Close DevTools before hiding to prevent dangling CDP IPC channel (causes EIO in Electron 41)
-    if (process.env.ELECTRON_RENDERER_URL && mainWindow.webContents.isDevToolsOpened()) {
-      mainWindow.webContents.closeDevTools()
-    }
     mainWindow.hide()
     if (SPACES_DEBUG) scheduleToggleSnapshots(toggleId, 'hide')
   } else {
