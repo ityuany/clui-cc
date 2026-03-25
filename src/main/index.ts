@@ -1,17 +1,13 @@
-// Suppress EIO/EPIPE on stdout/stderr when launched as a GUI app without a terminal.
-// The error is thrown *synchronously* inside Writable.write → afterWriteDispatched,
-// so an 'error' event listener is not enough — we must wrap write() itself.
-for (const stream of [process.stdout, process.stderr] as const) {
-  if (!stream) continue
-  const orig = stream.write.bind(stream)
-  ;(stream as NodeJS.WriteStream).write = function (...args: Parameters<typeof orig>) {
-    try { return orig(...(args as Parameters<typeof orig>)) }
-    catch (e: unknown) {
-      if ((e as NodeJS.ErrnoException)?.code === 'EIO' || (e as NodeJS.ErrnoException)?.code === 'EPIPE') return false
-      throw e
-    }
-  } as typeof orig
-}
+// Electron's built-in uncaughtException handler (in browser_init.js) shows the error
+// dialog ONLY when process.listenerCount('uncaughtException') === 1 (i.e. no other
+// listeners). By registering our own handler we make the count > 1, which causes
+// Electron to skip its dialog. We then handle EIO/EPIPE silently (these are benign
+// write errors when launched as a GUI app without a terminal attached) and re-show
+// the dialog for any real error.
+process.on('uncaughtException', (err: NodeJS.ErrnoException) => {
+  if (err.code === 'EIO' || err.code === 'EPIPE') return
+  dialog.showErrorBox('A JavaScript error occurred in the main process', err.stack ?? err.message)
+})
 
 import { app, BrowserWindow, ipcMain, dialog, screen, globalShortcut, Tray, Menu, nativeImage, nativeTheme, shell, systemPreferences, Notification } from 'electron'
 import { join } from 'path'
