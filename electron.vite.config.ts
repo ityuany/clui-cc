@@ -28,6 +28,10 @@ export default defineConfig({
   },
   renderer: {
     root: resolve(__dirname, 'src/renderer'),
+    server: {
+      port: 5173,
+      strictPort: true,
+    },
     plugins: [react(), tailwindcss()],
     build: {
       outDir: resolve(__dirname, 'dist/renderer'),
