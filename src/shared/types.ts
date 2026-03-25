@@ -331,7 +331,10 @@ export const IPC = {
   LIST_SESSIONS: 'clui:list-sessions',
   LOAD_SESSION: 'clui:load-session',
 
-  // One-way events (main → renderer)
+  // One-way push events (main → renderer, via broadcast)
+  NORMALIZED_EVENT: 'clui:normalized-event',
+  TAB_STATUS_CHANGE: 'clui:tab-status-change',
+  ENRICHED_ERROR: 'clui:enriched-error',
   TEXT_CHUNK: 'clui:text-chunk',
   TOOL_CALL: 'clui:tool-call',
   TOOL_CALL_UPDATE: 'clui:tool-call-update',
