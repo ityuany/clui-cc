@@ -952,31 +952,30 @@ ipcMain.handle(IPC.OPEN_IN_TERMINAL, (_event, arg: string | null | { sessionId?:
     return false
   }
 
-  // Shell-safe single-quote escaping: replace ' with '\'' (end quote, escaped literal quote, reopen quote)
-  // Single quotes block all shell expansion ($, `, \, etc.) — unlike double quotes which allow $() and backticks
-  const shellSingleQuote = (s: string): string => "'" + s.replace(/'/g, "'\\''") + "'"
-  // AppleScript string escaping: backslashes doubled, double quotes escaped
-  const escapeAppleScript = (s: string): string => s.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
+  // Escape a value for embedding inside an AppleScript double-quoted string literal.
+  // Only `\` and `"` are special in AppleScript strings; null bytes and newlines are
+  // already rejected above, so this is sufficient.
+  const escapeAppleScriptString = (s: string): string =>
+    s.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
 
-  const safeDir = escapeAppleScript(shellSingleQuote(projectPath))
+  // Build the resume flag; sessionId is UUID-validated above, safe to embed directly.
+  const resumeFlag = sessionId ? ` --resume ${sessionId}` : ''
 
-  let cmd: string
-  if (sessionId) {
-    // sessionId is UUID-validated above, safe to embed directly
-    cmd = `cd ${safeDir} && ${claudeBin} --resume ${sessionId}`
-  } else {
-    cmd = `cd ${safeDir} && ${claudeBin}`
-  }
-
-  const script = `tell application "Terminal"
-  activate
-  do script "${cmd}"
-end tell`
+  // Pass projectPath as an AppleScript variable, then use AppleScript's built-in
+  // `quoted form of` to shell-quote it — equivalent to Python's shlex.quote().
+  // This avoids layering manual shell-escaping on top of AppleScript-escaping.
+  const appleScript = [
+    `set thePath to "${escapeAppleScriptString(projectPath)}"`,
+    `tell application "Terminal"`,
+    `  activate`,
+    `  do script "cd " & quoted form of thePath & " && ${claudeBin}${resumeFlag}"`,
+    `end tell`,
+  ].join('\n')
 
   try {
-    execFile('/usr/bin/osascript', ['-e', script], (err: Error | null) => {
+    execFile('/usr/bin/osascript', ['-e', appleScript], (err: Error | null) => {
       if (err) log(`Failed to open terminal: ${err.message}`)
-      else log(`Opened terminal with: ${cmd}`)
+      else log(`Opened terminal in: ${projectPath}`)
     })
     return true
   } catch (err: unknown) {
