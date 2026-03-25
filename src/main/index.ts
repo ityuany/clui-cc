@@ -1,8 +1,16 @@
-// Suppress EIO/EPIPE on stdout/stderr when launched as a GUI app without a terminal
+// Suppress EIO/EPIPE on stdout/stderr when launched as a GUI app without a terminal.
+// The error is thrown *synchronously* inside Writable.write → afterWriteDispatched,
+// so an 'error' event listener is not enough — we must wrap write() itself.
 for (const stream of [process.stdout, process.stderr] as const) {
-  stream?.on('error', (err: NodeJS.ErrnoException) => {
-    if (err.code !== 'EIO' && err.code !== 'EPIPE') throw err
-  })
+  if (!stream) continue
+  const orig = stream.write.bind(stream)
+  ;(stream as NodeJS.WriteStream).write = function (...args: Parameters<typeof orig>) {
+    try { return orig(...(args as Parameters<typeof orig>)) }
+    catch (e: unknown) {
+      if ((e as NodeJS.ErrnoException)?.code === 'EIO' || (e as NodeJS.ErrnoException)?.code === 'EPIPE') return false
+      throw e
+    }
+  } as typeof orig
 }
 
 import { app, BrowserWindow, ipcMain, dialog, screen, globalShortcut, Tray, Menu, nativeImage, nativeTheme, shell, systemPreferences, Notification } from 'electron'
