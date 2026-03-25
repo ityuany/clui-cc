@@ -16,12 +16,12 @@
  */
 
 import { EventEmitter } from 'events'
+import { appendFileSync, chmodSync, existsSync, statSync } from 'fs'
 import { homedir } from 'os'
 import { join } from 'path'
-import { execSync } from 'child_process'
-import { appendFileSync, chmodSync, existsSync, statSync } from 'fs'
 import type { NormalizedEvent, RunOptions, EnrichedError } from '../../shared/types'
 import { getCliEnv } from '../cli-env'
+import { findClaudeBinary } from './find-claude-binary'
 
 // node-pty is a native module — require at runtime to avoid Vite bundling issues
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -279,7 +279,7 @@ export class PtyRunManager extends EventEmitter {
 
   constructor() {
     super()
-    this.claudeBinary = this._findClaudeBinary()
+    this.claudeBinary = findClaudeBinary()
     this._ensureSpawnHelperExecutable()
     log(`Claude binary: ${this.claudeBinary}`)
   }
@@ -308,31 +308,6 @@ export class PtyRunManager extends EventEmitter {
     } catch (err) {
       log(`spawn-helper permission check failed: ${(err as Error).message}`)
     }
-  }
-
-  private _findClaudeBinary(): string {
-    const candidates = [
-      '/usr/local/bin/claude',
-      '/opt/homebrew/bin/claude',
-      join(homedir(), '.npm-global/bin/claude'),
-    ]
-
-    for (const c of candidates) {
-      try {
-        execSync(`test -x "${c}"`, { stdio: 'ignore' })
-        return c
-      } catch {}
-    }
-
-    try {
-      return execSync('/bin/zsh -ilc "whence -p claude"', { encoding: 'utf-8', env: getCliEnv() }).trim()
-    } catch {}
-
-    try {
-      return execSync('/bin/bash -lc "which claude"', { encoding: 'utf-8', env: getCliEnv() }).trim()
-    } catch {}
-
-    return 'claude'
   }
 
   private _getEnv(): NodeJS.ProcessEnv {
