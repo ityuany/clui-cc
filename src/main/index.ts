@@ -24,7 +24,6 @@ process.on('uncaughtException', (err: Error) => {
     _log('main', `[suppressed] uncaughtException ${code}: ${err.message}`)
     return
   }
-  // Re-throw anything else so genuine crashes are not silenced.
   _log('main', `uncaughtException: ${err.stack ?? err.message}`)
   throw err
 })
