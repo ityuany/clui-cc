@@ -145,6 +145,7 @@ export function ConversationView() {
   return (
     <div
       data-clui-ui
+      style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -152,7 +153,7 @@ export function ConversationView() {
       <div
         ref={scrollRef}
         className="overflow-y-auto overflow-x-hidden px-4 pt-2 conversation-selectable"
-        style={{ paddingBottom: 28 }}
+        style={{ flex: 1, minHeight: 0, paddingBottom: 28 }}
         onScroll={handleScroll}
       >
         {/* Load older button */}
