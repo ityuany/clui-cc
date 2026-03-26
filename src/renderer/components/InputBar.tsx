@@ -287,7 +287,7 @@ export function InputBar() {
     if (showSlashMenu) {
       const filtered = getFilteredCommandsWithExtras(slashFilter!, skillCommands)
       if (e.key === 'ArrowDown') { e.preventDefault(); setSlashIndex((i) => (i + 1) % filtered.length); return }
-      if (e.key === 'ArrowUpIcon') { e.preventDefault(); setSlashIndex((i) => (i - 1 + filtered.length) % filtered.length); return }
+      if (e.key === 'ArrowUp') { e.preventDefault(); setSlashIndex((i) => (i - 1 + filtered.length) % filtered.length); return }
       if (e.key === 'Tab') { e.preventDefault(); if (filtered.length > 0) handleSlashSelect(filtered[slashIndex]); return }
       if (e.key === 'Escape') { e.preventDefault(); setSlashFilter(null); return }
     }
