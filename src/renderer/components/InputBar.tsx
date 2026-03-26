@@ -604,8 +604,12 @@ function VoiceButtons({ voiceState, isConnecting, colors, onToggle, onCancel, on
 async function blobToWavBase64(blob: Blob): Promise<string> {
   const arrayBuffer = await blob.arrayBuffer()
   const audioCtx = new AudioContext()
-  const decoded = await audioCtx.decodeAudioData(arrayBuffer)
-  audioCtx.close()
+  let decoded: AudioBuffer
+  try {
+    decoded = await audioCtx.decodeAudioData(arrayBuffer)
+  } finally {
+    audioCtx.close()
+  }
   const mono = mixToMono(decoded)
   const inputRms = rmsLevel(mono)
   if (inputRms < 0.003) {
