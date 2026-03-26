@@ -112,6 +112,22 @@ controlPlane.on('event', (tabId: string, event: NormalizedEvent) => {
 
 controlPlane.on('tab-status-change', (tabId: string, newStatus: string, oldStatus: string) => {
   broadcast(IPC.TAB_STATUS_CHANGE, tabId, newStatus, oldStatus)
+
+  // Notify the user when a run finishes and the window is hidden.
+  // Only fire on terminal transitions from an active state to avoid
+  // spurious notifications on tab creation or intermediate states.
+  const wasRunning = oldStatus === 'running' || oldStatus === 'connecting'
+  const isTerminal = newStatus === 'completed' || newStatus === 'failed' || newStatus === 'dead'
+  if (wasRunning && isTerminal && Notification.isSupported() && !mainWindow?.isVisible()) {
+    const succeeded = newStatus === 'completed'
+    const n = new Notification({
+      title: succeeded ? 'CLUI — 任务完成' : 'CLUI — 任务失败',
+      body: succeeded ? 'Claude 已完成任务，点击查看结果' : 'Claude 运行出错，点击查看详情',
+      silent: false,
+    })
+    n.on('click', () => showWindow('task-complete-notification'))
+    n.show()
+  }
 })
 
 controlPlane.on('error', (tabId: string, error: EnrichedError) => {
