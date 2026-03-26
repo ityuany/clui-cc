@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import {
   TrashIcon, CpuIcon, CurrencyDollarIcon, QuestionIcon, HardDrivesIcon, SparkleIcon,
 } from '@phosphor-icons/react'
-import { usePopoverLayer } from './PopoverLayer'
+import { usePopoverLayer } from './popover-layer'
 import { useColors } from '../theme'
 
 export interface SlashCommand {

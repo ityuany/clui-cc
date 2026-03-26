@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { useSessionStore } from '../stores/sessionStore'
+import { useSessionStore } from '../stores/session-store'
 import type { NormalizedEvent } from '../../shared/types'
 
 /**

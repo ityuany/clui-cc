@@ -1,7 +1,7 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import { ShieldWarningIcon, TerminalIcon, PencilSimpleIcon, GlobeIcon, WrenchIcon } from '@phosphor-icons/react'
-import { useSessionStore } from '../stores/sessionStore'
+import { useSessionStore } from '../stores/session-store'
 import { useColors } from '../theme'
 import type { PermissionRequest } from '../../shared/types'
 

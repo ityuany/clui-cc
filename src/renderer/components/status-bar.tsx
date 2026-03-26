@@ -2,10 +2,10 @@ import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { TerminalIcon, CaretDownIcon, CheckIcon, FolderOpenIcon, PlusIcon, XIcon, ShieldCheckIcon, UserCircleIcon, KeyIcon } from '@phosphor-icons/react'
-import { useSessionStore, AVAILABLE_MODELS, getModelDisplayLabel } from '../stores/sessionStore'
-import { usePopoverLayer } from './PopoverLayer'
+import { useSessionStore, AVAILABLE_MODELS, getModelDisplayLabel } from '../stores/session-store'
+import { usePopoverLayer } from './popover-layer'
 import { useColors } from '../theme'
-import { loadApiConfig, loadApiConfigData } from './ApiConfigPopover'
+import { loadApiConfig, loadApiConfigData } from './api-config-popover'
 
 /* ─── Model Picker (inline — tightly coupled to StatusBar) ─── */
 

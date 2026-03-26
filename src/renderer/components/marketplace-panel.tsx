@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { XIcon, MagnifyingGlassIcon, SpinnerGapIcon, ArrowClockwiseIcon, HeadCircuitIcon, CompassIcon, GithubLogoIcon } from '@phosphor-icons/react'
-import { useSessionStore } from '../stores/sessionStore'
+import { useSessionStore } from '../stores/session-store'
 import { useColors } from '../theme'
 import type { CatalogPlugin, PluginStatus } from '../../shared/types'
 

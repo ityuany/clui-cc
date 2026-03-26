@@ -3,8 +3,8 @@ import { createPortal } from 'react-dom'
 import { motion } from 'framer-motion'
 import { DotsThreeIcon, BellIcon, ArrowsOutSimpleIcon, MoonIcon } from '@phosphor-icons/react'
 import { useThemeStore } from '../theme'
-import { useSessionStore } from '../stores/sessionStore'
-import { usePopoverLayer } from './PopoverLayer'
+import { useSessionStore } from '../stores/session-store'
+import { usePopoverLayer } from './popover-layer'
 import { useColors } from '../theme'
 
 function RowToggle({

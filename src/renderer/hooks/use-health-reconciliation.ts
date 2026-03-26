@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useSessionStore } from '../stores/sessionStore'
+import { useSessionStore } from '../stores/session-store'
 
 const HEALTH_POLL_INTERVAL_MS = 1500
 

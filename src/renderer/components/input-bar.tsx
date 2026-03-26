@@ -1,9 +1,9 @@
 import React, { useState, useRef, useCallback, useEffect, useLayoutEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MicrophoneIcon, ArrowUpIcon, SpinnerGapIcon, XIcon, CheckIcon } from '@phosphor-icons/react'
-import { useSessionStore, AVAILABLE_MODELS } from '../stores/sessionStore'
-import { AttachmentChips } from './AttachmentChips'
-import { SlashCommandMenu, getFilteredCommandsWithExtras, type SlashCommand } from './SlashCommandMenu'
+import { useSessionStore, AVAILABLE_MODELS } from '../stores/session-store'
+import { AttachmentChips } from './attachment-chips'
+import { SlashCommandMenu, getFilteredCommandsWithExtras, type SlashCommand } from './slash-command-menu'
 import { useColors } from '../theme'
 
 const INPUT_MIN_HEIGHT = 20

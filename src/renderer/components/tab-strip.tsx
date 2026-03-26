@@ -1,9 +1,9 @@
 import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { PlusIcon, XIcon } from '@phosphor-icons/react'
-import { useSessionStore } from '../stores/sessionStore'
-import { HistoryPicker } from './HistoryPicker'
-import { SettingsPopover } from './SettingsPopover'
+import { useSessionStore } from '../stores/session-store'
+import { HistoryPicker } from './history-picker'
+import { SettingsPopover } from './settings-popover'
 import { useColors } from '../theme'
 import type { TabStatus } from '../../shared/types'
 

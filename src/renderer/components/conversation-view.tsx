@@ -7,9 +7,9 @@ import {
   RobotIcon, QuestionIcon, WrenchIcon, FolderOpenIcon, CopyIcon, CheckIcon, CaretRightIcon, CaretDownIcon,
   SpinnerGapIcon, ArrowCounterClockwiseIcon, SquareIcon,
 } from '@phosphor-icons/react'
-import { useSessionStore } from '../stores/sessionStore'
-import { PermissionCard } from './PermissionCard'
-import { PermissionDeniedCard } from './PermissionDeniedCard'
+import { useSessionStore } from '../stores/session-store'
+import { PermissionCard } from './permission-card'
+import { PermissionDeniedCard } from './permission-denied-card'
 import { useColors, useThemeStore } from '../theme'
 import type { Message } from '../../shared/types'
 
