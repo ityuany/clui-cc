@@ -152,6 +152,16 @@ function makeLocalTab(): TabState {
 
 const initialTab = makeLocalTab()
 
+// ─── Tab patch helpers ───
+
+function patchTab(tabs: TabState[], tabId: string, patch: Partial<TabState>): TabState[] {
+  return tabs.map((t) => t.id === tabId ? { ...t, ...patch } : t)
+}
+
+function patchTabFn(tabs: TabState[], tabId: string, fn: (t: TabState) => Partial<TabState>): TabState[] {
+  return tabs.map((t) => t.id === tabId ? { ...t, ...fn(t) } : t)
+}
+
 export const useSessionStore = create<State>((set, get) => ({
   tabs: [initialTab],
   activeTabId: initialTab.id,
@@ -184,19 +194,17 @@ export const useSessionStore = create<State>((set, get) => ({
   },
 
   setPreferredModel: (model) => {
-    const { activeTabId } = get()
-    set((s) => ({ tabs: s.tabs.map((t) => t.id === activeTabId ? { ...t, preferredModel: model } : t) }))
+    set((s) => ({ tabs: patchTab(s.tabs, s.activeTabId, { preferredModel: model }) }))
   },
 
   setPermissionMode: (mode) => {
     const { activeTabId } = get()
-    set((s) => ({ tabs: s.tabs.map((t) => t.id === activeTabId ? { ...t, permissionMode: mode } : t) }))
+    set((s) => ({ tabs: patchTab(s.tabs, s.activeTabId, { permissionMode: mode }) }))
     window.clui.setPermissionMode(activeTabId, mode)
   },
 
   setApiProfile: (profileId) => {
-    const { activeTabId } = get()
-    set((s) => ({ tabs: s.tabs.map((t) => t.id === activeTabId ? { ...t, apiProfileId: profileId } : t) }))
+    set((s) => ({ tabs: patchTab(s.tabs, s.activeTabId, { apiProfileId: profileId }) }))
   },
 
   createTab: async () => {
@@ -234,7 +242,7 @@ export const useSessionStore = create<State>((set, get) => ({
         activePanelId: null,
         // Expanding = reading: clear unread flag
         tabs: willExpand
-          ? prev.tabs.map((t) => t.id === tabId ? { ...t, hasUnread: false } : t)
+          ? patchTab(prev.tabs, tabId, { hasUnread: false })
           : prev.tabs,
       }))
     } else {
@@ -242,9 +250,7 @@ export const useSessionStore = create<State>((set, get) => ({
       set((prev) => ({
         activeTabId: tabId,
         activePanelId: null,
-        tabs: prev.tabs.map((t) =>
-          t.id === tabId ? { ...t, hasUnread: false } : t
-        ),
+        tabs: patchTab(prev.tabs, tabId, { hasUnread: false }),
       }))
     }
   },
@@ -257,7 +263,7 @@ export const useSessionStore = create<State>((set, get) => ({
       marketplaceOpen: false,
       // Expanding = reading: clear unread flag for the active tab
       tabs: willExpand
-        ? s.tabs.map((t) => t.id === activeTabId ? { ...t, hasUnread: false } : t)
+        ? patchTab(s.tabs, activeTabId, { hasUnread: false })
         : s.tabs,
     }))
   },
@@ -378,13 +384,8 @@ export const useSessionStore = create<State>((set, get) => ({
   },
 
   clearTab: () => {
-    const { activeTabId } = get()
     set((s) => ({
-      tabs: s.tabs.map((t) =>
-        t.id === activeTabId
-          ? { ...t, messages: [], lastResult: null, currentActivity: '', permissionQueue: [], permissionDenied: null, queuedPrompts: [] }
-          : t
-      ),
+      tabs: patchTab(s.tabs, s.activeTabId, { messages: [], lastResult: null, currentActivity: '', permissionQueue: [], permissionDenied: null, queuedPrompts: [] }),
     }))
   },
 
@@ -436,19 +437,10 @@ export const useSessionStore = create<State>((set, get) => ({
   },
 
   addSystemMessage: (content) => {
-    const { activeTabId } = get()
     set((s) => ({
-      tabs: s.tabs.map((t) =>
-        t.id === activeTabId
-          ? {
-              ...t,
-              messages: [
-                ...t.messages,
-                { id: nextMsgId(), role: 'system' as const, content, timestamp: Date.now() },
-              ],
-            }
-          : t
-      ),
+      tabs: patchTabFn(s.tabs, s.activeTabId, (t) => ({
+        messages: [...t.messages, { id: nextMsgId(), role: 'system' as const, content, timestamp: Date.now() }],
+      })),
     }))
   },
 
@@ -477,29 +469,18 @@ export const useSessionStore = create<State>((set, get) => ({
   // ─── Directory management ───
 
   addDirectory: (dir) => {
-    const { activeTabId } = get()
     set((s) => ({
-      tabs: s.tabs.map((t) =>
-        t.id === activeTabId
-          ? {
-              ...t,
-              additionalDirs: t.additionalDirs.includes(dir)
-                ? t.additionalDirs
-                : [...t.additionalDirs, dir],
-            }
-          : t
-      ),
+      tabs: patchTabFn(s.tabs, s.activeTabId, (t) => ({
+        additionalDirs: t.additionalDirs.includes(dir) ? t.additionalDirs : [...t.additionalDirs, dir],
+      })),
     }))
   },
 
   removeDirectory: (dir) => {
-    const { activeTabId } = get()
     set((s) => ({
-      tabs: s.tabs.map((t) =>
-        t.id === activeTabId
-          ? { ...t, additionalDirs: t.additionalDirs.filter((d) => d !== dir) }
-          : t
-      ),
+      tabs: patchTabFn(s.tabs, s.activeTabId, (t) => ({
+        additionalDirs: t.additionalDirs.filter((d) => d !== dir),
+      })),
     }))
   },
 
@@ -507,51 +488,26 @@ export const useSessionStore = create<State>((set, get) => ({
     const { activeTabId } = get()
     window.clui.resetTabSession(activeTabId)
     set((s) => ({
-      tabs: s.tabs.map((t) =>
-        t.id === activeTabId
-          ? {
-              ...t,
-              workingDirectory: dir,
-              hasChosenDirectory: true,
-              claudeSessionId: null,
-              additionalDirs: [],
-            }
-          : t
-      ),
+      tabs: patchTab(s.tabs, s.activeTabId, { workingDirectory: dir, hasChosenDirectory: true, claudeSessionId: null, additionalDirs: [] }),
     }))
   },
 
   // ─── Attachment management ───
 
   addAttachments: (attachments) => {
-    const { activeTabId } = get()
     set((s) => ({
-      tabs: s.tabs.map((t) =>
-        t.id === activeTabId
-          ? { ...t, attachments: [...t.attachments, ...attachments] }
-          : t
-      ),
+      tabs: patchTabFn(s.tabs, s.activeTabId, (t) => ({ attachments: [...t.attachments, ...attachments] })),
     }))
   },
 
   removeAttachment: (attachmentId) => {
-    const { activeTabId } = get()
     set((s) => ({
-      tabs: s.tabs.map((t) =>
-        t.id === activeTabId
-          ? { ...t, attachments: t.attachments.filter((a) => a.id !== attachmentId) }
-          : t
-      ),
+      tabs: patchTabFn(s.tabs, s.activeTabId, (t) => ({ attachments: t.attachments.filter((a) => a.id !== attachmentId) })),
     }))
   },
 
   clearAttachments: () => {
-    const { activeTabId } = get()
-    set((s) => ({
-      tabs: s.tabs.map((t) =>
-        t.id === activeTabId ? { ...t, attachments: [] } : t
-      ),
-    }))
+    set((s) => ({ tabs: patchTab(s.tabs, s.activeTabId, { attachments: [] }) }))
   },
 
   // ─── Send ───
@@ -907,16 +863,11 @@ export const useSessionStore = create<State>((set, get) => ({
 
   handleStatusChange: (tabId, newStatus) => {
     set((s) => ({
-      tabs: s.tabs.map((t) =>
-        t.id === tabId
-          ? {
-              ...t,
-              status: newStatus as TabStatus,
-              // Clear activity when transitioning to idle (e.g., after warmup init)
-              ...(newStatus === 'idle' ? { currentActivity: '', permissionQueue: [] as import('../../shared/types').PermissionRequest[], permissionDenied: null } : {}),
-            }
-          : t
-      ),
+      tabs: patchTab(s.tabs, tabId, {
+        status: newStatus as TabStatus,
+        // Clear activity when transitioning to idle (e.g., after warmup init)
+        ...(newStatus === 'idle' ? { currentActivity: '', permissionQueue: [] as import('../../shared/types').PermissionRequest[], permissionDenied: null } : {}),
+      }),
     }))
   },
 
