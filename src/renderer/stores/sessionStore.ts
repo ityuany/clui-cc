@@ -452,11 +452,9 @@ export const useSessionStore = create<State>((set, get) => ({
 
     // Remove answered item from queue; show next tool's activity or clear
     set((s) => ({
-      tabs: s.tabs.map((t) => {
-        if (t.id !== tabId) return t
+      tabs: patchTabFn(s.tabs, tabId, (t) => {
         const remaining = t.permissionQueue.filter((p) => p.questionId !== questionId)
         return {
-          ...t,
           permissionQueue: remaining,
           currentActivity: remaining.length > 0
             ? `Waiting for permission: ${remaining[0].toolTitle}`
@@ -873,15 +871,11 @@ export const useSessionStore = create<State>((set, get) => ({
 
   handleError: (tabId, error) => {
     set((s) => ({
-      tabs: s.tabs.map((t) => {
-        if (t.id !== tabId) return t
-
+      tabs: patchTabFn(s.tabs, tabId, (t) => {
         // Deduplicate: skip if the last message is already an error for this failure
         const lastMsg = t.messages[t.messages.length - 1]
         const alreadyHasError = lastMsg?.role === 'system' && lastMsg.content.startsWith('Error:')
-
         return {
-          ...t,
           status: 'failed' as TabStatus,
           activeRequestId: null,
           currentActivity: '',
