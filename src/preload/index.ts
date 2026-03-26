@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { IPC } from '../shared/types'
-import type { RunOptions, NormalizedEvent, HealthReport, EnrichedError, Attachment, SessionMeta, CatalogPlugin, SessionLoadMessage } from '../shared/types'
+import type { RunOptions, NormalizedEvent, HealthReport, EnrichedError, Attachment, SessionMeta, CatalogPlugin, SessionLoadMessage, TabStatus } from '../shared/types'
 
 export interface CluiAPI {
   // ─── Request-response (renderer → main) ───
@@ -45,7 +45,7 @@ export interface CluiAPI {
 
   // ─── Event listeners (main → renderer) ───
   onEvent(callback: (tabId: string, event: NormalizedEvent) => void): () => void
-  onTabStatusChange(callback: (tabId: string, newStatus: string, oldStatus: string) => void): () => void
+  onTabStatusChange(callback: (tabId: string, newStatus: TabStatus, oldStatus: TabStatus) => void): () => void
   onError(callback: (tabId: string, error: EnrichedError) => void): () => void
   onSkillStatus(callback: (status: { name: string; state: string; error?: string; reason?: string }) => void): () => void
   onWindowShown(callback: () => void): () => void
@@ -115,7 +115,7 @@ const api: CluiAPI = {
 
   onTabStatusChange: (callback) => {
     const handler = (_e: Electron.IpcRendererEvent, tabId: string, newStatus: string, oldStatus: string) =>
-      callback(tabId, newStatus, oldStatus)
+      callback(tabId, newStatus as TabStatus, oldStatus as TabStatus)
     ipcRenderer.on(IPC.TAB_STATUS_CHANGE, handler)
     return () => ipcRenderer.removeListener(IPC.TAB_STATUS_CHANGE, handler)
   },

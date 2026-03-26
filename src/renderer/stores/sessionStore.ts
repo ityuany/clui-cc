@@ -99,7 +99,7 @@ interface State {
   removeAttachment: (attachmentId: string) => void
   clearAttachments: () => void
   handleNormalizedEvent: (tabId: string, event: NormalizedEvent) => void
-  handleStatusChange: (tabId: string, newStatus: string, oldStatus: string) => void
+  handleStatusChange: (tabId: string, newStatus: TabStatus, oldStatus: TabStatus) => void
   handleError: (tabId: string, error: EnrichedError) => void
 }
 
@@ -862,7 +862,7 @@ export const useSessionStore = create<State>((set, get) => ({
   handleStatusChange: (tabId, newStatus) => {
     set((s) => ({
       tabs: patchTab(s.tabs, tabId, {
-        status: newStatus as TabStatus,
+        status: newStatus,
         // Clear activity when transitioning to idle (e.g., after warmup init)
         ...(newStatus === 'idle' ? { currentActivity: '', permissionQueue: [] as import('../../shared/types').PermissionRequest[], permissionDenied: null } : {}),
       }),
