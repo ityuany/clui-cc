@@ -5,12 +5,9 @@ import { useSessionStore, AVAILABLE_MODELS } from '../stores/session-store'
 import { AttachmentChips } from './attachment-chips'
 import { SlashCommandMenu, getFilteredCommandsWithExtras, type SlashCommand } from './slash-command-menu'
 import { useColors } from '../theme'
+import { INPUT_LIMITS, FONT_SIZE, LINE_HEIGHT, TRANSITION, SCALE, AUDIO_LIMITS } from '../constants'
 
-const INPUT_MIN_HEIGHT = 20
-const INPUT_MAX_HEIGHT = 140
-const MULTILINE_ENTER_HEIGHT = 52
-const MULTILINE_EXIT_HEIGHT = 50
-const INLINE_CONTROLS_RESERVED_WIDTH = 104
+const { MIN_HEIGHT: INPUT_MIN_HEIGHT, MAX_HEIGHT: INPUT_MAX_HEIGHT, MULTILINE_ENTER_HEIGHT, MULTILINE_EXIT_HEIGHT, INLINE_CONTROLS_RESERVED_WIDTH } = INPUT_LIMITS
 
 type VoiceState = 'idle' | 'recording' | 'transcribing'
 
@@ -421,8 +418,8 @@ export function InputBar() {
               rows={1}
               className="w-full bg-transparent resize-none"
               style={{
-                fontSize: 14,
-                lineHeight: '20px',
+                fontSize: FONT_SIZE.LG,
+                lineHeight: LINE_HEIGHT.INPUT,
                 color: colors.textPrimary,
                 minHeight: 20,
                 maxHeight: INPUT_MAX_HEIGHT,
@@ -442,7 +439,7 @@ export function InputBar() {
               />
               <AnimatePresence>
                 {canSend && voiceState !== 'recording' && (
-                  <motion.div key="send" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} transition={{ duration: 0.1 }}>
+                  <motion.div key="send" initial={{ opacity: 0, scale: SCALE.DOWN }} animate={{ opacity: 1, scale: SCALE.NORMAL }} exit={{ opacity: 0, scale: SCALE.DOWN }} transition={TRANSITION.INSTANT}>
                     <button
                       onMouseDown={(e) => e.preventDefault()}
                       onClick={handleSend}
@@ -479,8 +476,8 @@ export function InputBar() {
               rows={1}
               className="flex-1 bg-transparent resize-none"
               style={{
-                fontSize: 14,
-                lineHeight: '20px',
+                fontSize: FONT_SIZE.LG,
+                lineHeight: LINE_HEIGHT.INPUT,
                 color: colors.textPrimary,
                 minHeight: 20,
                 maxHeight: INPUT_MAX_HEIGHT,
@@ -500,7 +497,7 @@ export function InputBar() {
               />
               <AnimatePresence>
                 {canSend && voiceState !== 'recording' && (
-                  <motion.div key="send" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} transition={{ duration: 0.1 }}>
+                  <motion.div key="send" initial={{ opacity: 0, scale: SCALE.DOWN }} animate={{ opacity: 1, scale: SCALE.NORMAL }} exit={{ opacity: 0, scale: SCALE.DOWN }} transition={TRANSITION.INSTANT}>
                     <button
                       onMouseDown={(e) => e.preventDefault()}
                       onClick={handleSend}
@@ -543,10 +540,10 @@ function VoiceButtons({ voiceState, isConnecting, colors, onToggle, onCancel, on
       {voiceState === 'recording' ? (
         <motion.div
           key="voice-controls"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.8 }}
-          transition={{ duration: 0.12 }}
+          initial={{ opacity: 0, scale: SCALE.DOWN }}
+          animate={{ opacity: 1, scale: SCALE.NORMAL }}
+          exit={{ opacity: 0, scale: SCALE.DOWN }}
+          transition={TRANSITION.FAST}
           className="flex items-center gap-1"
         >
           <button
@@ -569,7 +566,7 @@ function VoiceButtons({ voiceState, isConnecting, colors, onToggle, onCancel, on
           </button>
         </motion.div>
       ) : voiceState === 'transcribing' ? (
-        <motion.div key="transcribing" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} transition={{ duration: 0.1 }}>
+        <motion.div key="transcribing" initial={{ opacity: 0, scale: SCALE.DOWN }} animate={{ opacity: 1, scale: SCALE.NORMAL }} exit={{ opacity: 0, scale: SCALE.DOWN }} transition={TRANSITION.INSTANT}>
           <button
             disabled
             className="w-9 h-9 rounded-full flex items-center justify-center"
@@ -579,7 +576,7 @@ function VoiceButtons({ voiceState, isConnecting, colors, onToggle, onCancel, on
           </button>
         </motion.div>
       ) : (
-        <motion.div key="mic" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} transition={{ duration: 0.1 }}>
+        <motion.div key="mic" initial={{ opacity: 0, scale: SCALE.DOWN }} animate={{ opacity: 1, scale: SCALE.NORMAL }} exit={{ opacity: 0, scale: SCALE.DOWN }} transition={TRANSITION.INSTANT}>
           <button
             onMouseDown={(e) => e.preventDefault()}
             onClick={onToggle}
@@ -612,7 +609,7 @@ async function blobToWavBase64(blob: Blob): Promise<string> {
   }
   const mono = mixToMono(decoded)
   const inputRms = rmsLevel(mono)
-  if (inputRms < 0.003) {
+  if (inputRms < AUDIO_LIMITS.MIN_RMS_THRESHOLD) {
     throw new Error('No voice detected. CheckIcon microphone permission and speak closer to the mic.')
   }
   const resampled = resampleLinear(mono, decoded.sampleRate, 16000)

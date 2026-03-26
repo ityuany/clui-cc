@@ -2,6 +2,7 @@ import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { XIcon, FileTextIcon, ImageIcon, FileCodeIcon, FileIcon } from '@phosphor-icons/react'
 import { useColors } from '../theme'
+import { FONT_SIZE, BORDER_RADIUS, TRANSITION } from '../constants'
 import type { Attachment } from '../../shared/types'
 
 const FILE_ICONS: Record<string, React.ReactNode> = {
@@ -38,12 +39,12 @@ export function AttachmentChips({
             initial={{ opacity: 0, scale: 0.85 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.85 }}
-            transition={{ duration: 0.12 }}
+            transition={TRANSITION.FAST}
             className="flex items-center gap-1.5 group flex-shrink-0"
             style={{
               background: colors.surfacePrimary,
               border: `1px solid ${colors.surfaceSecondary}`,
-              borderRadius: 14,
+              borderRadius: BORDER_RADIUS.HUGE,
               padding: a.dataUrl ? '3px 8px 3px 3px' : '4px 8px',
               maxWidth: 200,
             }}

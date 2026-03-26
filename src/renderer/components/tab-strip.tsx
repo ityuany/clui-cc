@@ -5,6 +5,7 @@ import { useSessionStore } from '../stores/session-store'
 import { HistoryPicker } from './history-picker'
 import { SettingsPopover } from './settings-popover'
 import { useColors } from '../theme'
+import { FONT_SIZE, BORDER_RADIUS, TRANSITION } from '../constants'
 import type { TabStatus } from '../../shared/types'
 
 function StatusDot({ status, hasUnread, hasPermission }: { status: TabStatus; hasUnread: boolean; hasPermission: boolean }) {
@@ -75,15 +76,15 @@ export function TabStrip() {
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.15 }}
+                  transition={TRANSITION.QUICK}
                   onClick={() => selectTab(tab.id)}
                   className="group flex items-center gap-1.5 cursor-pointer select-none flex-shrink-0 max-w-[160px] transition-all duration-150"
                   style={{
                     background: isActive ? colors.tabActive : 'transparent',
                     border: isActive ? `1px solid ${colors.tabActiveBorder}` : '1px solid transparent',
-                    borderRadius: 9999,
+                    borderRadius: BORDER_RADIUS.XL999,
                     padding: '4px 10px',
-                    fontSize: 12,
+                    fontSize: FONT_SIZE.BASE,
                     color: isActive ? colors.textPrimary : colors.textTertiary,
                     fontWeight: isActive ? 500 : 400,
                   }}

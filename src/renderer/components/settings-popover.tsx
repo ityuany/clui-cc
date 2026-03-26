@@ -3,9 +3,11 @@ import { createPortal } from 'react-dom'
 import { motion } from 'framer-motion'
 import { DotsThreeIcon, BellIcon, ArrowsOutSimpleIcon, MoonIcon } from '@phosphor-icons/react'
 import { useThemeStore } from '../theme'
+import { FONT_SIZE, BORDER_RADIUS, TRANSITION } from '../constants'
 import { useSessionStore } from '../stores/session-store'
 import { usePopoverLayer } from './popover-layer'
 import { useColors } from '../theme'
+import { FONT_SIZE, BORDER_RADIUS, TRANSITION } from '../constants'
 
 function RowToggle({
   checked,
@@ -144,7 +146,7 @@ export function SettingsPopover() {
           initial={{ opacity: 0, y: isExpanded ? -4 : 4 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: isExpanded ? -4 : 4 }}
-          transition={{ duration: 0.12 }}
+          transition={TRANSITION.FAST}
           className="rounded-xl"
           style={{
             position: 'fixed',

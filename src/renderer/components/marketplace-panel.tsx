@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { XIcon, MagnifyingGlassIcon, SpinnerGapIcon, ArrowClockwiseIcon, HeadCircuitIcon, CompassIcon, GithubLogoIcon } from '@phosphor-icons/react'
 import { useSessionStore } from '../stores/session-store'
 import { useColors } from '../theme'
+import { FONT_SIZE, BORDER_RADIUS, TRANSITION } from '../constants'
 import type { CatalogPlugin, PluginStatus } from '../../shared/types'
 
 export function MarketplacePanel() {
@@ -107,16 +108,16 @@ export function MarketplacePanel() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <HeadCircuitIcon size={20} weight="regular" style={{ color: colors.accent }} />
           <div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: colors.textPrimary }}>
+            <div style={{ fontSize: FONT_SIZE.MD, fontWeight: 700, color: colors.textPrimary }}>
               Skills Marketplace
             </div>
-            <div style={{ fontSize: 11, color: colors.textTertiary, marginTop: 2 }}>
+            <div style={{ fontSize: FONT_SIZE.BASE_SM, color: colors.textTertiary, marginTop: 2 }}>
               Install skills and plugins without leaving CLUI
             </div>
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 11, color: colors.textTertiary }}>
+          <span style={{ fontSize: FONT_SIZE.BASE_SM, color: colors.textTertiary }}>
             {filtered.length} result{filtered.length === 1 ? '' : 's'}
           </span>
           <button
@@ -128,7 +129,7 @@ export function MarketplacePanel() {
               color: colors.textTertiary,
               padding: 2,
               display: 'flex',
-              borderRadius: 4,
+              borderRadius: BORDER_RADIUS.SM,
             }}
             title="Refresh marketplace"
             onMouseEnter={(e) => (e.currentTarget.style.color = colors.textPrimary)}
@@ -141,7 +142,7 @@ export function MarketplacePanel() {
             style={{
               background: 'none', border: 'none', cursor: 'pointer',
               color: colors.textTertiary, padding: 2, display: 'flex',
-              borderRadius: 4,
+              borderRadius: BORDER_RADIUS.SM,
             }}
             onMouseEnter={(e) => (e.currentTarget.style.color = colors.textPrimary)}
             onMouseLeave={(e) => (e.currentTarget.style.color = colors.textTertiary)}
@@ -158,7 +159,7 @@ export function MarketplacePanel() {
           alignItems: 'center',
           gap: 6,
           background: colors.inputPillBg,
-          borderRadius: 12,
+          borderRadius: BORDER_RADIUS.XXXL,
           padding: '9px 12px',
           border: `1px solid ${colors.containerBorder}`,
           minWidth: 0,
@@ -172,7 +173,7 @@ export function MarketplacePanel() {
             onChange={handleSearchChange}
             style={{
               flex: 1, background: 'none', border: 'none', outline: 'none',
-              color: colors.textPrimary, fontSize: 12, fontFamily: 'inherit',
+              color: colors.textPrimary, fontSize: FONT_SIZE.BASE, fontFamily: 'inherit',
             }}
           />
         </div>
@@ -182,7 +183,7 @@ export function MarketplacePanel() {
             flexShrink: 0,
             height: 36,
             padding: '0 12px',
-            borderRadius: 9999,
+            borderRadius: BORDER_RADIUS.XL999,
             border: `1px dashed ${colors.accentBorderMedium}`,
             background: colors.accentLight,
             cursor: 'pointer',
@@ -191,7 +192,7 @@ export function MarketplacePanel() {
             gap: 6,
             transition: 'all 0.15s',
             color: colors.accent,
-            fontSize: 11,
+            fontSize: FONT_SIZE.BASE_SM,
             fontWeight: 600,
             fontFamily: 'inherit',
             whiteSpace: 'nowrap',
@@ -217,10 +218,10 @@ export function MarketplacePanel() {
             key={f}
             onClick={() => setFilter(f)}
             style={{
-              fontSize: 11,
+              fontSize: FONT_SIZE.BASE_SM,
               fontWeight: 600,
               padding: '6px 11px',
-              borderRadius: 999,
+              borderRadius: BORDER_RADIUS.XL99,
               border: `1px solid ${filter === f ? colors.accent : colors.containerBorder}`,
               background: filter === f ? colors.accentLight : 'transparent',
               color: filter === f ? colors.accent : colors.textSecondary,
@@ -356,7 +357,7 @@ function PluginCard({ plugin, status, colors, expanded, onToggleExpand, scrollCo
         color: colors.textTertiary,
         padding: 2,
         display: 'flex',
-        borderRadius: 4,
+        borderRadius: BORDER_RADIUS.SM,
       }}
       title="View source on GitHub"
       onMouseEnter={(e) => (e.currentTarget.style.color = colors.textPrimary)}
@@ -375,7 +376,7 @@ function PluginCard({ plugin, status, colors, expanded, onToggleExpand, scrollCo
       onClick={onToggleExpand}
       style={{
         padding: '12px',
-        borderRadius: 14,
+        borderRadius: BORDER_RADIUS.HUGE,
         border: `1px solid ${expanded ? colors.surfaceSecondary : colors.containerBorder}`,
         background: expanded ? colors.surfaceActive : colors.surfaceHover,
         minHeight: expanded ? undefined : 154,
@@ -412,33 +413,33 @@ function PluginCard({ plugin, status, colors, expanded, onToggleExpand, scrollCo
             </div>
           </div>
 
-          <div style={{ fontSize: 13, fontWeight: 600, color: colors.textPrimary }}>
+          <div style={{ fontSize: FONT_SIZE.MD, fontWeight: 600, color: colors.textPrimary }}>
             {safeName}
           </div>
           <div style={{
-            fontSize: 11,
+            fontSize: FONT_SIZE.BASE_SM,
             color: colors.textSecondary,
             marginTop: 5,
             lineHeight: 1.5,
           }}>
             {safeDescription}
           </div>
-          <div style={{ fontSize: 10, color: colors.textTertiary, marginTop: 8 }}>
+          <div style={{ fontSize: FONT_SIZE.SM, color: colors.textTertiary, marginTop: 8 }}>
             {safeRepo} · by {safeAuthor} · v{safeVersion}
           </div>
 
           {/* Confirm panel or installing status */}
           {showConfirm && status === 'not_installed' && (
             <div style={{
-              padding: '10px 12px', borderRadius: 10, marginTop: 10,
+              padding: '10px 12px', borderRadius: BORDER_RADIUS.XXL, marginTop: 10,
               background: colors.surfacePrimary, border: `1px solid ${colors.containerBorder}`,
             }}>
-              <div style={{ fontSize: 10, color: colors.textTertiary, marginBottom: 4 }}>
+              <div style={{ fontSize: FONT_SIZE.SM, color: colors.textTertiary, marginBottom: 4 }}>
                 {plugin.isSkillMd ? 'Will install to:' : 'Will run:'}
               </div>
               <div style={{
-                fontSize: 10, fontFamily: 'monospace', color: colors.textSecondary,
-                background: colors.codeBg, padding: '4px 6px', borderRadius: 4,
+                fontSize: FONT_SIZE.SM, fontFamily: 'monospace', color: colors.textSecondary,
+                background: colors.codeBg, padding: '4px 6px', borderRadius: BORDER_RADIUS.SM,
                 lineHeight: 1.6,
               }}>
                 {plugin.isSkillMd
@@ -450,7 +451,7 @@ function PluginCard({ plugin, status, colors, expanded, onToggleExpand, scrollCo
                 <button
                   onClick={handleConfirm}
                   style={{
-                    fontSize: 10, fontWeight: 600, padding: '4px 10px', borderRadius: 6,
+                    fontSize: FONT_SIZE.SM, fontWeight: 600, padding: '4px 10px', borderRadius: BORDER_RADIUS.MD,
                     background: colors.accent, color: colors.textOnAccent, border: 'none',
                     cursor: 'pointer', fontFamily: 'inherit',
                   }}
@@ -460,7 +461,7 @@ function PluginCard({ plugin, status, colors, expanded, onToggleExpand, scrollCo
                 <button
                   onClick={handleCancel}
                   style={{
-                    fontSize: 10, fontWeight: 500, padding: '4px 10px', borderRadius: 6,
+                    fontSize: FONT_SIZE.SM, fontWeight: 500, padding: '4px 10px', borderRadius: BORDER_RADIUS.MD,
                     background: 'transparent', color: colors.textSecondary,
                     border: `1px solid ${colors.containerBorder}`,
                     cursor: 'pointer', fontFamily: 'inherit',
@@ -474,7 +475,7 @@ function PluginCard({ plugin, status, colors, expanded, onToggleExpand, scrollCo
 
           {status === 'installing' && (
             <div style={{
-              padding: '10px 12px', borderRadius: 10, marginTop: 10,
+              padding: '10px 12px', borderRadius: BORDER_RADIUS.XXL, marginTop: 10,
               background: colors.surfacePrimary, border: `1px solid ${colors.containerBorder}`,
               display: 'flex', alignItems: 'center', gap: 8,
             }}>
@@ -485,7 +486,7 @@ function PluginCard({ plugin, status, colors, expanded, onToggleExpand, scrollCo
               >
                 <SpinnerGapIcon size={14} style={{ color: colors.accent }} />
               </motion.div>
-              <span style={{ fontSize: 11, color: colors.textSecondary }}>Installing plugin...</span>
+              <span style={{ fontSize: FONT_SIZE.BASE_SM, color: colors.textSecondary }}>Installing plugin...</span>
             </div>
           )}
         </div>
@@ -499,11 +500,11 @@ function PluginCard({ plugin, status, colors, expanded, onToggleExpand, scrollCo
                 <Tag key={tag} label={tag} colors={colors} />
               ))}
             </div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: colors.textPrimary }}>
+            <div style={{ fontSize: FONT_SIZE.MD, fontWeight: 600, color: colors.textPrimary }}>
               {safeName}
             </div>
             <div style={{
-              fontSize: 11,
+              fontSize: FONT_SIZE.BASE_SM,
               color: colors.textSecondary,
               marginTop: 5,
               lineHeight: 1.45,
@@ -514,7 +515,7 @@ function PluginCard({ plugin, status, colors, expanded, onToggleExpand, scrollCo
             }}>
               {safeDescription}
             </div>
-            <div style={{ fontSize: 10, color: colors.textTertiary, marginTop: 8 }}>
+            <div style={{ fontSize: FONT_SIZE.SM, color: colors.textTertiary, marginTop: 8 }}>
               {safeRepo} · by {safeAuthor} · v{safeVersion}
             </div>
           </div>
@@ -545,7 +546,7 @@ function StatusButton({ status, colors, onClick, onUninstall }: {
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
           style={{
-            fontSize: 10, fontWeight: 500, padding: '2px 8px', borderRadius: 8,
+            fontSize: FONT_SIZE.SM, fontWeight: 500, padding: '2px 8px', borderRadius: BORDER_RADIUS.LG,
             background: hovered ? colors.statusErrorBg : colors.statusCompleteBg,
             color: hovered ? colors.statusError : colors.statusComplete,
             whiteSpace: 'nowrap',
@@ -559,7 +560,7 @@ function StatusButton({ status, colors, onClick, onUninstall }: {
     case 'installing':
       return (
         <span style={{
-          fontSize: 10, fontWeight: 500, padding: '2px 8px', borderRadius: 8,
+          fontSize: FONT_SIZE.SM, fontWeight: 500, padding: '2px 8px', borderRadius: BORDER_RADIUS.LG,
           background: colors.accentLight, color: colors.accent,
           display: 'flex', alignItems: 'center', gap: 4,
           whiteSpace: 'nowrap',
@@ -579,7 +580,7 @@ function StatusButton({ status, colors, onClick, onUninstall }: {
         <button
           onClick={onClick}
           style={{
-            fontSize: 10, fontWeight: 500, padding: '2px 8px', borderRadius: 8,
+            fontSize: FONT_SIZE.SM, fontWeight: 500, padding: '2px 8px', borderRadius: BORDER_RADIUS.LG,
             background: colors.statusErrorBg, color: colors.statusError,
             border: 'none', cursor: 'pointer', fontFamily: 'inherit',
             whiteSpace: 'nowrap',
@@ -593,7 +594,7 @@ function StatusButton({ status, colors, onClick, onUninstall }: {
         <button
           onClick={onClick}
           style={{
-            fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 8,
+            fontSize: FONT_SIZE.SM, fontWeight: 600, padding: '2px 8px', borderRadius: BORDER_RADIUS.LG,
             background: colors.accentLight, color: colors.accent,
             border: `1px solid ${colors.accentBorder}`,
             cursor: 'pointer', fontFamily: 'inherit',
@@ -618,11 +619,11 @@ function Tag({ label, colors, emphasis }: {
   return (
     <span
       style={{
-        fontSize: 10,
+        fontSize: FONT_SIZE.SM,
         fontWeight: 600,
         lineHeight: 1,
         padding: '5px 8px',
-        borderRadius: 999,
+        borderRadius: BORDER_RADIUS.XL99,
         whiteSpace: 'nowrap',
         border: `1px solid ${isAccent ? colors.accentBorderMedium : colors.containerBorder}`,
         background: isAccent ? colors.accentLight : colors.surfacePrimary,
@@ -645,7 +646,7 @@ function LoadingState({ colors }: { colors: ReturnType<typeof useColors> }) {
             animate={{ opacity: [0.3, 0.6, 0.3] }}
             transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.15 }}
             style={{
-              height: 12, width: '60%', borderRadius: 4,
+              height: 12, width: '60%', borderRadius: BORDER_RADIUS.SM,
               background: colors.surfacePrimary, marginBottom: 4,
             }}
           />
@@ -653,7 +654,7 @@ function LoadingState({ colors }: { colors: ReturnType<typeof useColors> }) {
             animate={{ opacity: [0.3, 0.6, 0.3] }}
             transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.15 + 0.1 }}
             style={{
-              height: 10, width: '90%', borderRadius: 4,
+              height: 10, width: '90%', borderRadius: BORDER_RADIUS.SM,
               background: colors.surfacePrimary,
             }}
           />
@@ -670,13 +671,13 @@ function ErrorState({ error, colors, onRetry }: {
 }) {
   return (
     <div style={{ padding: '20px 10px', textAlign: 'center' }}>
-      <div style={{ fontSize: 11, color: colors.statusError, marginBottom: 8 }}>
+      <div style={{ fontSize: FONT_SIZE.BASE_SM, color: colors.statusError, marginBottom: 8 }}>
         {error.length > 100 ? error.substring(0, 100) + '...' : error}
       </div>
       <button
         onClick={onRetry}
         style={{
-          fontSize: 10, fontWeight: 600, padding: '4px 12px', borderRadius: 6,
+          fontSize: FONT_SIZE.SM, fontWeight: 600, padding: '4px 12px', borderRadius: BORDER_RADIUS.MD,
           background: colors.accentLight, color: colors.accent,
           border: `1px solid ${colors.accentBorder}`,
           cursor: 'pointer', fontFamily: 'inherit',
@@ -693,7 +694,7 @@ function EmptyState({ colors }: { colors: ReturnType<typeof useColors> }) {
   return (
     <div style={{
       padding: '24px 10px', textAlign: 'center',
-      fontSize: 11, color: colors.textTertiary,
+      fontSize: FONT_SIZE.BASE_SM, color: colors.textTertiary,
     }}>
       No plugins match your search
     </div>

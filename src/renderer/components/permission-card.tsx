@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { ShieldWarningIcon, TerminalIcon, PencilSimpleIcon, GlobeIcon, WrenchIcon } from '@phosphor-icons/react'
 import { useSessionStore } from '../stores/session-store'
 import { useColors } from '../theme'
+import { FONT_SIZE, BORDER_RADIUS, TRANSITION } from '../constants'
 import type { PermissionRequest } from '../../shared/types'
 
 interface Props {
@@ -74,7 +75,7 @@ export function PermissionCard({ tabId, permission, queueLength = 1 }: Props) {
         style={{
           background: colors.containerBg,
           border: `1px solid ${colors.permissionBorder}`,
-          borderRadius: 12,
+          borderRadius: BORDER_RADIUS.XXXL,
           boxShadow: colors.permissionShadow,
         }}
         className="overflow-hidden"

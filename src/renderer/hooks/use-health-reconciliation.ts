@@ -1,7 +1,8 @@
 import { useEffect } from 'react'
 import { useSessionStore } from '../stores/session-store'
+import { POLLING_INTERVALS } from '../constants'
 
-const HEALTH_POLL_INTERVAL_MS = 1500
+const { HEALTH_CHECK: HEALTH_POLL_INTERVAL_MS } = POLLING_INTERVALS
 
 /**
  * Health reconciliation loop: periodically compares running tabs

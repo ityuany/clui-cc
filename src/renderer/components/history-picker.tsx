@@ -5,6 +5,7 @@ import { ClockIcon, ChatCircleIcon } from '@phosphor-icons/react'
 import { useSessionStore } from '../stores/session-store'
 import { usePopoverLayer } from './popover-layer'
 import { useColors } from '../theme'
+import { FONT_SIZE, BORDER_RADIUS, TRANSITION } from '../constants'
 import type { SessionMeta } from '../../shared/types'
 
 function formatTimeAgo(isoDate: string): string {
@@ -122,7 +123,7 @@ export function HistoryPicker() {
           initial={{ opacity: 0, y: isExpanded ? -4 : 4 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: isExpanded ? -4 : 4 }}
-          transition={{ duration: 0.12 }}
+          transition={TRANSITION.FAST}
           className="rounded-xl"
           style={{
             position: 'fixed',

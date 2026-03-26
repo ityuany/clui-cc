@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { KeyIcon, EyeIcon, EyeSlashIcon, CheckIcon, PlusIcon, PencilSimpleIcon, TrashIcon, ArrowLeftIcon } from '@phosphor-icons/react'
 import { useColors } from '../theme'
+import { FONT_SIZE, BORDER_RADIUS, TRANSITION } from '../constants'
 
 // ─── Types ───
 
@@ -88,7 +89,7 @@ function ConfigInput({
         display: 'flex',
         alignItems: 'center',
         background: colors.inputPillBg,
-        borderRadius: 10,
+        borderRadius: BORDER_RADIUS.XXL,
         padding: suffix ? '7px 8px 7px 10px' : '7px 10px',
         border: `1px solid ${focused ? colors.inputFocusBorder : colors.containerBorder}`,
         transition: 'border-color 0.15s',
@@ -108,7 +109,7 @@ function ConfigInput({
           border: 'none',
           outline: 'none',
           color: colors.textPrimary,
-          fontSize: 12,
+          fontSize: FONT_SIZE.BASE,
           fontFamily: 'inherit',
           userSelect: 'text',
           WebkitUserSelect: 'text',
@@ -158,7 +159,7 @@ function EditPanel({
           style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             background: 'none', border: 'none', cursor: 'pointer',
-            color: colors.textTertiary, padding: 2, borderRadius: 4,
+            color: colors.textTertiary, padding: 2, borderRadius: BORDER_RADIUS.SM,
           }}
           onMouseEnter={(e) => { e.currentTarget.style.color = colors.textSecondary }}
           onMouseLeave={(e) => { e.currentTarget.style.color = colors.textTertiary }}
@@ -194,7 +195,7 @@ function EditPanel({
             <button
               type="button"
               onClick={() => setShowToken((s) => !s)}
-              style={{ flexShrink: 0, color: colors.textTertiary, background: 'none', border: 'none', cursor: 'pointer', display: 'flex', padding: 2, borderRadius: 4 }}
+              style={{ flexShrink: 0, color: colors.textTertiary, background: 'none', border: 'none', cursor: 'pointer', display: 'flex', padding: 2, borderRadius: BORDER_RADIUS.SM }}
               onMouseEnter={(e) => { e.currentTarget.style.color = colors.textSecondary }}
               onMouseLeave={(e) => { e.currentTarget.style.color = colors.textTertiary }}
               title={showToken ? '隐藏' : '显示'}
@@ -210,7 +211,7 @@ function EditPanel({
       <button
         onClick={handleSave}
         style={{
-          fontSize: 12, fontWeight: 600, padding: '5px 10px', borderRadius: 8,
+          fontSize: FONT_SIZE.BASE, fontWeight: 600, padding: '5px 10px', borderRadius: BORDER_RADIUS.LG,
           background: saved ? colors.statusComplete : colors.accent,
           color: colors.textOnAccent, border: 'none', cursor: 'pointer', fontFamily: 'inherit',
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
@@ -248,7 +249,7 @@ function ProfileRow({
     <div
       style={{
         display: 'flex', alignItems: 'center', gap: 6,
-        borderRadius: 8, padding: '5px 4px',
+        borderRadius: BORDER_RADIUS.LG, padding: '5px 4px',
         background: hovered ? colors.inputPillBg : 'transparent',
         transition: 'background 0.12s',
       }}
@@ -260,19 +261,19 @@ function ProfileRow({
         style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', padding: 0 }}
       >
         <div style={{
-          width: 14, height: 14, borderRadius: '50%',
+          width: 14, height: 14, borderRadius: BORDER_RADIUS.CIRCLE,
           border: `2px solid ${isActive ? colors.accent : colors.textTertiary}`,
           display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
           transition: 'border-color 0.15s',
         }}>
-          {isActive && <div style={{ width: 6, height: 6, borderRadius: '50%', background: colors.accent }} />}
+          {isActive && <div style={{ width: 6, height: 6, borderRadius: BORDER_RADIUS.CIRCLE, background: colors.accent }} />}
         </div>
         <div style={{ minWidth: 0 }}>
-          <div style={{ fontSize: 12, fontWeight: isActive ? 600 : 400, color: isActive ? colors.textPrimary : colors.textSecondary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <div style={{ fontSize: FONT_SIZE.BASE, fontWeight: isActive ? 600 : 400, color: isActive ? colors.textPrimary : colors.textSecondary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {profile.name}
           </div>
           {profile.baseUrl && (
-            <div style={{ fontSize: 10, color: colors.textTertiary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <div style={{ fontSize: FONT_SIZE.SM, color: colors.textTertiary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {profile.baseUrl}
             </div>
           )}
@@ -282,7 +283,7 @@ function ProfileRow({
       <div style={{ display: 'flex', gap: 2, opacity: hovered ? 1 : 0, transition: 'opacity 0.12s' }}>
         <button
           onClick={onEdit}
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'none', border: 'none', cursor: 'pointer', color: colors.textTertiary, padding: 3, borderRadius: 5 }}
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'none', border: 'none', cursor: 'pointer', color: colors.textTertiary, padding: 3, borderRadius: BORDER_RADIUS.BASE }}
           onMouseEnter={(e) => { e.currentTarget.style.color = colors.textSecondary; e.currentTarget.style.background = colors.containerBorder }}
           onMouseLeave={(e) => { e.currentTarget.style.color = colors.textTertiary; e.currentTarget.style.background = 'none' }}
           title="编辑"
@@ -291,7 +292,7 @@ function ProfileRow({
         </button>
         <button
           onClick={onDelete}
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'none', border: 'none', cursor: 'pointer', color: colors.textTertiary, padding: 3, borderRadius: 5 }}
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'none', border: 'none', cursor: 'pointer', color: colors.textTertiary, padding: 3, borderRadius: BORDER_RADIUS.BASE }}
           onMouseEnter={(e) => { e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.background = 'rgba(239,68,68,0.1)' }}
           onMouseLeave={(e) => { e.currentTarget.style.color = colors.textTertiary; e.currentTarget.style.background = 'none' }}
           title="删除"
@@ -355,7 +356,7 @@ export function ApiConfigContent() {
       <div className="flex items-center gap-2">
         <KeyIcon size={14} style={{ color: colors.textTertiary }} />
         <span className="text-[12px] font-medium" style={{ color: colors.textPrimary }}>API 配置</span>
-        <span style={{ marginLeft: 'auto', fontSize: 10, color: colors.textTertiary }}>
+        <span style={{ marginLeft: 'auto', fontSize: FONT_SIZE.SM, color: colors.textTertiary }}>
           {configData.profiles.length} 条
         </span>
       </div>
@@ -388,7 +389,7 @@ export function ApiConfigContent() {
         onClick={handleNew}
         style={{
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
-          fontSize: 12, fontWeight: 500, padding: '5px 10px', borderRadius: 8,
+          fontSize: FONT_SIZE.BASE, fontWeight: 500, padding: '5px 10px', borderRadius: BORDER_RADIUS.LG,
           background: 'transparent', color: colors.textSecondary,
           border: `1px solid ${colors.containerBorder}`,
           cursor: 'pointer', fontFamily: 'inherit',
@@ -438,7 +439,7 @@ export function ApiConfigButton({
       {hasConfig && (
         <span style={{
           position: 'absolute', top: 9, right: 9,
-          width: 6, height: 6, borderRadius: '50%',
+          width: 6, height: 6, borderRadius: BORDER_RADIUS.CIRCLE,
           background: colors.accent, pointerEvents: 'none',
         }} />
       )}

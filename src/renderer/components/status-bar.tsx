@@ -5,6 +5,7 @@ import { TerminalIcon, CaretDownIcon, CheckIcon, FolderOpenIcon, PlusIcon, XIcon
 import { useSessionStore, AVAILABLE_MODELS, getModelDisplayLabel } from '../stores/session-store'
 import { usePopoverLayer } from './popover-layer'
 import { useColors } from '../theme'
+import { FONT_SIZE, BORDER_RADIUS, TRANSITION } from '../constants'
 import { loadApiConfig, loadApiConfigData } from './api-config-popover'
 
 /* ─── Model Picker (inline — tightly coupled to StatusBar) ─── */
@@ -87,7 +88,7 @@ function ModelPicker() {
           initial={{ opacity: 0, y: 4 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 4 }}
-          transition={{ duration: 0.12 }}
+          transition={TRANSITION.FAST}
           className="rounded-xl"
           style={{
             position: 'fixed',
@@ -197,7 +198,7 @@ function PermissionModePicker() {
           initial={{ opacity: 0, y: 4 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 4 }}
-          transition={{ duration: 0.12 }}
+          transition={TRANSITION.FAST}
           className="rounded-xl"
           style={{
             position: 'fixed',
@@ -301,7 +302,7 @@ function AccountSource() {
 
   return (
     <>
-      <span style={{ color: colors.textMuted, fontSize: 10 }}>|</span>
+      <span style={{ color: colors.textMuted, fontSize: FONT_SIZE.SM }}>|</span>
       <button
         ref={triggerRef}
         onClick={handleToggle}
@@ -324,7 +325,7 @@ function AccountSource() {
           initial={{ opacity: 0, y: 4 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 4 }}
-          transition={{ duration: 0.12 }}
+          transition={TRANSITION.FAST}
           className="rounded-xl"
           style={{
             position: 'fixed',
@@ -511,7 +512,7 @@ export function StatusBar() {
             data-clui-ui
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.12 }}
+            transition={TRANSITION.FAST}
             className="rounded-xl"
             style={{
               position: 'fixed',
@@ -580,11 +581,11 @@ export function StatusBar() {
           popoverLayer,
         )}
 
-        <span style={{ color: colors.textMuted, fontSize: 10 }}>|</span>
+        <span style={{ color: colors.textMuted, fontSize: FONT_SIZE.SM }}>|</span>
 
         <ModelPicker />
 
-        <span style={{ color: colors.textMuted, fontSize: 10 }}>|</span>
+        <span style={{ color: colors.textMuted, fontSize: FONT_SIZE.SM }}>|</span>
 
         <PermissionModePicker />
 

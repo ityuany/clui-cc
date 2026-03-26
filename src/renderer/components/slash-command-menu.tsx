@@ -6,6 +6,7 @@ import {
 } from '@phosphor-icons/react'
 import { usePopoverLayer } from './popover-layer'
 import { useColors } from '../theme'
+import { FONT_SIZE, BORDER_RADIUS, TRANSITION } from '../constants'
 
 export interface SlashCommand {
   command: string
@@ -65,7 +66,7 @@ export function SlashCommandMenu({ filter, selectedIndex, onSelect, anchorRect, 
       initial={{ opacity: 0, y: 4 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 4 }}
-      transition={{ duration: 0.12 }}
+      transition={TRANSITION.FAST}
       style={{
         position: 'fixed',
         bottom: window.innerHeight - anchorRect.top + 4,

@@ -11,12 +11,12 @@ import { useSessionStore } from '../stores/session-store'
 import { PermissionCard } from './permission-card'
 import { PermissionDeniedCard } from './permission-denied-card'
 import { useColors, useThemeStore } from '../theme'
+import { MESSAGE_LIMITS, SCROLL_LIMITS, DURATION, TRANSITION, FONT_SIZE } from '../constants'
 import type { Message } from '../../shared/types'
 
 // ─── Constants ───
 
-const INITIAL_RENDER_CAP = 100
-const PAGE_SIZE = 100
+const { INITIAL_RENDER_CAP, PAGE_SIZE, HISTORICAL_THRESHOLD } = MESSAGE_LIMITS
 const REMARK_PLUGINS = [remarkGfm] // Hoisted — prevents re-parse on every render
 
 // ─── Types ───
@@ -83,7 +83,7 @@ export function ConversationView() {
   const handleScroll = useCallback(() => {
     const el = scrollRef.current
     if (!el) return
-    isNearBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 60
+    isNearBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < SCROLL_LIMITS.NEAR_BOTTOM_THRESHOLD
   }, [])
 
   // Auto-scroll when content changes and user is near bottom.
@@ -133,7 +133,7 @@ export function ConversationView() {
   }
 
   // Messages from before initial render cap are "historical" — no motion
-  const historicalThreshold = Math.max(0, totalCount - 20)
+  const historicalThreshold = Math.max(0, totalCount - HISTORICAL_THRESHOLD)
 
   const handleRetry = () => {
     const lastUserMsg = [...tab.messages].reverse().find((m) => m.role === 'user')
@@ -253,16 +253,16 @@ export function ConversationView() {
           )}
 
           {isDead && (
-            <span style={{ color: colors.statusError, fontSize: 11 }}>Session ended unexpectedly</span>
+            <span style={{ color: colors.statusError, fontSize: FONT_SIZE.BASE_SM }}>Session ended unexpectedly</span>
           )}
 
           {isFailed && (
             <span className="flex items-center gap-1.5">
-              <span style={{ color: colors.statusError, fontSize: 11 }}>Failed</span>
+              <span style={{ color: colors.statusError, fontSize: FONT_SIZE.BASE_SM }}>Failed</span>
               <button
                 onClick={handleRetry}
                 className="flex items-center gap-1 rounded-full px-2 py-0.5 transition-colors"
-                style={{ color: colors.accent, fontSize: 11 }}
+                style={{ color: colors.accent, fontSize: FONT_SIZE.BASE_SM }}
               >
                 <ArrowCounterClockwiseIcon size={10} />
                 Retry
@@ -341,7 +341,7 @@ function CopyButton({ text }: { text: string }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.12 }}
+      transition={TRANSITION.FAST}
       onClick={handleCopy}
       className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[11px] cursor-pointer flex-shrink-0"
       style={{
@@ -371,7 +371,7 @@ function InterruptButton({ tabId }: { tabId: string }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.12 }}
+      transition={TRANSITION.FAST}
       onClick={handleStop}
       className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[11px] cursor-pointer flex-shrink-0 transition-colors"
       style={{
@@ -415,7 +415,7 @@ function UserMessage({ message, skipMotion }: { message: Message; skipMotion?: b
     <motion.div
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.15 }}
+      transition={TRANSITION.QUICK}
       className="flex justify-end py-1.5"
     >
       {content}
@@ -433,7 +433,7 @@ function QueuedMessage({ content }: { content: string }) {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      transition={{ duration: 0.15 }}
+      transition={TRANSITION.QUICK}
       className="flex justify-end py-1.5"
     >
       <div
@@ -611,7 +611,7 @@ const AssistantMessage = React.memo(function AssistantMessage({
     <motion.div
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.15 }}
+      transition={TRANSITION.QUICK}
       className="py-1"
     >
       {inner}
@@ -759,7 +759,7 @@ function ToolGroup({ tools, skipMotion, hasPermissionPending }: { tools: Message
         initial={{ opacity: 0, height: 0 }}
         animate={{ opacity: 1, height: 'auto' }}
         exit={{ opacity: 0, height: 0 }}
-        transition={{ duration: 0.15 }}
+        transition={TRANSITION.QUICK}
       >
         {inner}
       </motion.div>
@@ -787,7 +787,7 @@ function ToolGroup({ tools, skipMotion, hasPermissionPending }: { tools: Message
     <motion.div
       initial={{ opacity: 0, y: 4 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.12 }}
+      transition={TRANSITION.FAST}
       className="py-0.5"
     >
       {inner}
@@ -819,7 +819,7 @@ function SystemMessage({ message, skipMotion }: { message: Message; skipMotion?:
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.15 }}
+      transition={TRANSITION.QUICK}
       className="py-0.5"
     >
       {inner}

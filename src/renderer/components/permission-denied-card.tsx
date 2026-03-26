@@ -2,6 +2,7 @@ import React from 'react'
 import { motion } from 'framer-motion'
 import { ShieldWarningIcon, TerminalIcon, ArrowSquareOutIcon } from '@phosphor-icons/react'
 import { useColors } from '../theme'
+import { FONT_SIZE, BORDER_RADIUS, TRANSITION } from '../constants'
 
 interface Props {
   tools: Array<{ toolName: string; toolUseId: string }>
@@ -34,7 +35,7 @@ export function PermissionDeniedCard({ tools, sessionId, projectPath, onDismiss 
         style={{
           background: colors.containerBg,
           border: `1px solid ${colors.permissionDeniedBorder}`,
-          borderRadius: 14,
+          borderRadius: BORDER_RADIUS.HUGE,
           boxShadow: `0 2px 12px ${colors.statusErrorBg}`,
         }}
         className="overflow-hidden"

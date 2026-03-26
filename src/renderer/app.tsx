@@ -12,8 +12,7 @@ import { useClaudeEvents } from './hooks/use-claude-events'
 import { useHealthReconciliation } from './hooks/use-health-reconciliation'
 import { useSessionStore } from './stores/session-store'
 import { useColors, useThemeStore, spacing } from './theme'
-
-const TRANSITION = { duration: 0.26, ease: [0.4, 0, 0.1, 1] as const }
+import { TRANSITION, WIDTH, HEIGHT, BORDER_RADIUS, MARGIN, Z_INDEX, SCALE } from './constants'
 
 export default function App() {
   useClaudeEvents()
@@ -98,10 +97,10 @@ export default function App() {
   const isRunning = activeTabStatus === 'running' || activeTabStatus === 'connecting'
 
   // Layout dimensions — expandedUI widens and heightens the panel
-  const contentWidth = expandedUI ? 700 : spacing.contentWidth
-  const cardExpandedWidth = expandedUI ? 700 : 460
-  const cardCollapsedWidth = expandedUI ? 670 : 430
-  const cardCollapsedMargin = expandedUI ? 15 : 15
+  const contentWidth = expandedUI ? WIDTH.CONTENT_EXPANDED : spacing.contentWidth
+  const cardExpandedWidth = expandedUI ? WIDTH.CARD_EXPANDED_WIDE : WIDTH.CARD_EXPANDED
+  const cardCollapsedWidth = expandedUI ? WIDTH.CARD_COLLAPSED_WIDE : WIDTH.CARD_COLLAPSED
+  const cardCollapsedMargin = MARGIN.CARD_COLLAPSED
 
   const handleScreenshot = useCallback(async () => {
     const result = await window.clui.takeScreenshot()
@@ -120,33 +119,33 @@ export default function App() {
       <div className="flex flex-col justify-end h-full" style={{ background: 'transparent' }}>
 
         {/* ─── 460px content column, centered. Circles overflow left. ─── */}
-        <div style={{ width: contentWidth, position: 'relative', margin: '0 auto', transition: 'width 0.26s cubic-bezier(0.4, 0, 0.1, 1)' }}>
+        <div style={{ width: contentWidth, position: 'relative', margin: '0 auto', transition: `width ${TRANSITION.STANDARD.duration}s cubic-bezier(${TRANSITION.STANDARD.ease.join(',')})` }}>
 
           <AnimatePresence initial={false}>
             {activePanelId !== null && (
               <div
                 data-clui-ui
                 style={{
-                  width: 720,
-                  maxWidth: 720,
+                  width: WIDTH.MARKETPLACE,
+                  maxWidth: WIDTH.MARKETPLACE,
                   marginLeft: '50%',
                   transform: 'translateX(-50%)',
-                  marginBottom: 14,
+                  marginBottom: MARGIN.PANEL_BOTTOM,
                   position: 'relative',
-                  zIndex: 30,
+                  zIndex: Z_INDEX.PANEL,
                 }}
               >
                 <motion.div
                   key={activePanelId}
-                  initial={{ opacity: 0, y: 14, scale: 0.98 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 10, scale: 0.985 }}
-                  transition={TRANSITION}
+                  initial={{ opacity: 0, y: 14, scale: SCALE.DOWN_NANO }}
+                  animate={{ opacity: 1, y: 0, scale: SCALE.NORMAL }}
+                  exit={{ opacity: 0, y: 10, scale: SCALE.DOWN_PICO }}
+                  transition={TRANSITION.STANDARD}
                 >
                   <div
                     data-clui-ui
                     className="glass-surface overflow-hidden no-drag"
-                    style={{ borderRadius: 24, height: 470 }}
+                    style={{ borderRadius: BORDER_RADIUS.PANEL, height: HEIGHT.MAX_MARKETPLACE }}
                   >
                     {activePanelId === 'marketplace' && <MarketplacePanel />}
                     {activePanelId === 'api-config' && <ApiConfigContent />}
@@ -166,20 +165,20 @@ export default function App() {
             className="overflow-hidden flex flex-col drag-region"
             animate={{
               width: isExpanded ? cardExpandedWidth : cardCollapsedWidth,
-              marginBottom: isExpanded ? 10 : -14,
+              marginBottom: isExpanded ? MARGIN.CARD_BOTTOM : -14,
               marginLeft: isExpanded ? 0 : cardCollapsedMargin,
               marginRight: isExpanded ? 0 : cardCollapsedMargin,
               background: isExpanded ? colors.containerBg : colors.containerBgCollapsed,
               borderColor: colors.containerBorder,
               boxShadow: isExpanded ? colors.cardShadow : colors.cardShadowCollapsed,
             }}
-            transition={TRANSITION}
+            transition={TRANSITION.STANDARD}
             style={{
               borderWidth: 1,
               borderStyle: 'solid',
-              borderRadius: 20,
+              borderRadius: BORDER_RADIUS.CARD,
               position: 'relative',
-              zIndex: isExpanded ? 20 : 10,
+              zIndex: isExpanded ? Z_INDEX.TOP : Z_INDEX.BASE,
             }}
           >
             {/* Tab strip — always mounted */}
@@ -191,11 +190,11 @@ export default function App() {
             <motion.div
               initial={false}
               animate={{
-                height: isExpanded ? 600 : 12,
-                minHeight: isExpanded ? 600 : 0,
+                height: isExpanded ? HEIGHT.EXPANDED_CONTENT : HEIGHT.COLLAPSED_CONTENT,
+                minHeight: isExpanded ? HEIGHT.EXPANDED_CONTENT : 0,
                 opacity: isExpanded ? 1 : 0,
               }}
-              transition={TRANSITION}
+              transition={TRANSITION.STANDARD}
               className="overflow-hidden no-drag"
             >
               <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -209,7 +208,7 @@ export default function App() {
 
           {/* ─── Input row — circles float outside left ─── */}
           {/* marginBottom: shadow buffer so the glass-surface drop shadow isn't clipped at the native window edge */}
-          <div data-clui-ui className="relative" style={{ minHeight: 46, zIndex: 15, marginBottom: 10 }}>
+          <div data-clui-ui className="relative" style={{ minHeight: HEIGHT.MIN_INPUT_ROW, zIndex: Z_INDEX.MIDDLE, marginBottom: MARGIN.CARD_BOTTOM_SHADOW }}>
             {/* Stacked circle buttons — expand on hover */}
             <div
               data-clui-ui
@@ -256,7 +255,7 @@ export default function App() {
             <div
               data-clui-ui
               className="glass-surface w-full"
-              style={{ minHeight: 50, borderRadius: 25, padding: '0 6px 0 16px', background: colors.inputPillBg }}
+              style={{ minHeight: HEIGHT.MIN_BUTTON, borderRadius: BORDER_RADIUS.INPUT, padding: '0 6px 0 16px', background: colors.inputPillBg }}
             >
               <InputBar />
             </div>
