@@ -57,7 +57,7 @@ function groupMessages(messages: Message[]): GroupedItem[] {
 // ─── Main Component ───
 
 export function ConversationView() {
-  const tabs = useSessionStore((s) => s.tabs)
+  const tab = useSessionStore((s) => s.tabs.find((t) => t.id === s.activeTabId))
   const activeTabId = useSessionStore((s) => s.activeTabId)
   const sendMessage = useSessionStore((s) => s.sendMessage)
   const staticInfo = useSessionStore((s) => s.staticInfo)
@@ -69,8 +69,6 @@ export function ConversationView() {
   const prevTabIdRef = useRef(activeTabId)
   const colors = useColors()
   const expandedUI = useThemeStore((s) => s.expandedUI)
-
-  const tab = tabs.find((t) => t.id === activeTabId)
 
   // Reset render offset and scroll state when switching tabs
   useEffect(() => {
@@ -154,7 +152,7 @@ export function ConversationView() {
       <div
         ref={scrollRef}
         className="overflow-y-auto overflow-x-hidden px-4 pt-2 conversation-selectable"
-        style={{ maxHeight: expandedUI ? 460 : 336, paddingBottom: 28 }}
+        style={{ paddingBottom: 28 }}
         onScroll={handleScroll}
       >
         {/* Load older button */}
