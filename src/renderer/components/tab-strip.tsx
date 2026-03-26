@@ -82,7 +82,7 @@ export function TabStrip() {
                   style={{
                     background: isActive ? colors.tabActive : 'transparent',
                     border: isActive ? `1px solid ${colors.tabActiveBorder}` : '1px solid transparent',
-                    borderRadius: BORDER_RADIUS.XL999,
+                    borderRadius: BORDER_RADIUS.PILL,
                     padding: '4px 10px',
                     fontSize: FONT_SIZE.BASE,
                     color: isActive ? colors.textPrimary : colors.textTertiary,

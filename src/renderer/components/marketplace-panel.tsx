@@ -183,7 +183,7 @@ export function MarketplacePanel() {
             flexShrink: 0,
             height: 36,
             padding: '0 12px',
-            borderRadius: BORDER_RADIUS.XL999,
+            borderRadius: BORDER_RADIUS.PILL,
             border: `1px dashed ${colors.accentBorderMedium}`,
             background: colors.accentLight,
             cursor: 'pointer',
