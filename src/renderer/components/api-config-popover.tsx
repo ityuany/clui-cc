@@ -153,7 +153,7 @@ function EditPanel({
   }
 
   return (
-    <div className="flex flex-col gap-2.5">
+    <div className="flex flex-col gap-2.5" style={{ padding: '20px 20px' }}>
       <div className="flex items-center gap-1.5">
         <button
           onClick={onBack}
@@ -354,7 +354,7 @@ export function ApiConfigContent() {
       colors={colors}
     />
   ) : (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: '16px 18px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: '20px 20px' }}>
       {configData.profiles.length === 0 ? (
         <div className="text-[11px] text-center py-3" style={{ color: colors.textTertiary }}>
           暂无配置，点击下方新增
@@ -429,8 +429,10 @@ export function ApiConfigContent() {
         </button>
       </div>
 
-      <div style={{ flex: 1, overflowY: 'auto' }}>
-        {content}
+      <div style={{ flex: 1, overflowY: 'auto', display: 'flex', justifyContent: 'center' }}>
+        <div style={{ width: '100%', maxWidth: 420 }}>
+          {content}
+        </div>
       </div>
     </div>
   )
