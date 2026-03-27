@@ -1,12 +1,13 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { TerminalIcon, CaretDownIcon, CheckIcon, FolderOpenIcon, PlusIcon, XIcon, ShieldCheckIcon, UserCircleIcon, KeyIcon } from '@phosphor-icons/react'
+import { TerminalIcon, CaretDownIcon, CheckIcon, FolderOpenIcon, PlusIcon, XIcon, ShieldCheckIcon, UserCircleIcon, KeyIcon, CaretUpIcon } from '@phosphor-icons/react'
 import { useSessionStore, AVAILABLE_MODELS, getModelDisplayLabel } from '../stores/session-store'
 import { usePopoverLayer } from './popover-layer'
 import { useColors, useThemeStore } from '../theme'
 import { FONT_SIZE, BORDER_RADIUS, TRANSITION } from '../constants'
 import { loadApiConfig, loadApiConfigData } from './api-config-popover'
+import { TERMINAL_DEFS, type TerminalApp } from '../../shared/types'
 
 /* ─── Model Picker (inline — tightly coupled to StatusBar) ─── */
 
@@ -427,13 +428,20 @@ export function StatusBar() {
   const popoverLayer = usePopoverLayer()
   const colors = useColors()
   const preferredTerminal = useThemeStore((s) => s.preferredTerminal)
+  const setPreferredTerminal = useThemeStore((s) => s.setPreferredTerminal)
 
   const [dirOpen, setDirOpen] = useState(false)
   const dirRef = useRef<HTMLButtonElement>(null)
   const dirPopRef = useRef<HTMLDivElement>(null)
   const [dirPos, setDirPos] = useState({ bottom: 0, left: 0 })
 
-  // Close popover on outside click
+  const [cliOpen, setCliOpen] = useState(false)
+  const cliRef = useRef<HTMLButtonElement>(null)
+  const cliPopRef = useRef<HTMLDivElement>(null)
+  const [cliPos, setCliPos] = useState({ bottom: 0, right: 0 })
+  const [installedTerminals, setInstalledTerminals] = useState<TerminalApp[]>([])
+
+  // Close dir popover on outside click
   useEffect(() => {
     if (!dirOpen) return
     const handler = (e: MouseEvent) => {
@@ -446,14 +454,38 @@ export function StatusBar() {
     return () => document.removeEventListener('mousedown', handler)
   }, [dirOpen])
 
+  // Load installed terminals and close on outside click
+  useEffect(() => {
+    if (!cliOpen) return
+    window.clui.getInstalledTerminals().then(setInstalledTerminals)
+    const handler = (e: MouseEvent) => {
+      const target = e.target as Node
+      if (cliRef.current?.contains(target)) return
+      if (cliPopRef.current?.contains(target)) return
+      setCliOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [cliOpen])
+
   if (!tab) return null
 
   const isRunning = tab.status === 'running' || tab.status === 'connecting'
   const isEmpty = tab.messages.length === 0
   const hasExtraDirs = tab.additionalDirs.length > 0
 
-  const handleOpenInTerminal = () => {
-    window.clui.openInTerminal(tab.claudeSessionId, tab.workingDirectory, preferredTerminal)
+  const handleOpenInTerminal = (terminalId: TerminalApp) => {
+    setPreferredTerminal(terminalId)
+    setCliOpen(false)
+    window.clui.openInTerminal(tab.claudeSessionId, tab.workingDirectory, terminalId)
+  }
+
+  const handleCliClick = () => {
+    if (!cliOpen && cliRef.current) {
+      const rect = cliRef.current.getBoundingClientRect()
+      setCliPos({ bottom: window.innerHeight - rect.top + 6, right: window.innerWidth - rect.right })
+    }
+    setCliOpen((o) => !o)
   }
 
   const handleDirClick = () => {
@@ -596,14 +628,57 @@ export function StatusBar() {
       {/* Right — Open in CLI */}
       <div className="flex items-center gap-1.5 flex-shrink-0">
         <button
-          onClick={handleOpenInTerminal}
+          ref={cliRef}
+          onClick={handleCliClick}
           className="flex items-center gap-1 text-[12px] rounded-full px-2 py-0.5 transition-colors"
           style={{ color: colors.textTertiary, cursor: 'pointer' }}
-          title="Open this session in TerminalIcon"
         >
           Open in CLI
           <TerminalIcon size={12} />
         </button>
+
+        {popoverLayer && cliOpen && createPortal(
+          <motion.div
+            ref={cliPopRef}
+            data-clui-ui
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={TRANSITION.FAST}
+            className="rounded-xl"
+            style={{
+              position: 'fixed',
+              bottom: cliPos.bottom,
+              right: cliPos.right,
+              minWidth: 140,
+              pointerEvents: 'auto',
+              background: colors.popoverBg,
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              boxShadow: colors.popoverShadow,
+              border: `1px solid ${colors.popoverBorder}`,
+            }}
+          >
+            <div className="py-1">
+              {installedTerminals.length === 0
+                ? <div className="px-3 py-2 text-[11px]" style={{ color: colors.textMuted }}>No terminals found</div>
+                : installedTerminals.map((id) => (
+                  <button
+                    key={id}
+                    onClick={() => handleOpenInTerminal(id)}
+                    className="w-full flex items-center justify-between px-3 py-1.5 text-[12px] transition-colors"
+                    style={{ color: colors.textSecondary, cursor: 'pointer' }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = colors.popoverBorder)}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                  >
+                    {TERMINAL_DEFS[id].label}
+                    {preferredTerminal === id && <CheckIcon size={11} style={{ color: colors.accent }} />}
+                  </button>
+                ))
+              }
+            </div>
+          </motion.div>,
+          popoverLayer,
+        )}
       </div>
     </div>
   )

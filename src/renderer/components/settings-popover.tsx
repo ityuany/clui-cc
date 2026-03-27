@@ -1,13 +1,12 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { motion } from 'framer-motion'
-import { DotsThreeIcon, BellIcon, MoonIcon, TerminalWindowIcon } from '@phosphor-icons/react'
+import { DotsThreeIcon, BellIcon, MoonIcon } from '@phosphor-icons/react'
 import { useThemeStore } from '../theme'
 import { useSessionStore } from '../stores/session-store'
 import { usePopoverLayer } from './popover-layer'
 import { useColors } from '../theme'
 import { FONT_SIZE, BORDER_RADIUS, TRANSITION } from '../constants'
-import { TERMINAL_DEFS, type TerminalApp } from '../../shared/types'
 
 function RowToggle({
   checked,
@@ -50,13 +49,10 @@ export function SettingsPopover() {
   const setSoundEnabled = useThemeStore((s) => s.setSoundEnabled)
   const themeMode = useThemeStore((s) => s.themeMode)
   const setThemeMode = useThemeStore((s) => s.setThemeMode)
-  const preferredTerminal = useThemeStore((s) => s.preferredTerminal)
-  const setPreferredTerminal = useThemeStore((s) => s.setPreferredTerminal)
   const isExpanded = useSessionStore((s) => s.isExpanded)
   const popoverLayer = usePopoverLayer()
   const colors = useColors()
 
-  const [installedTerminals, setInstalledTerminals] = useState<TerminalApp[]>([])
   const [open, setOpen] = useState(false)
   const triggerRef = useRef<HTMLButtonElement>(null)
   const popoverRef = useRef<HTMLDivElement>(null)
@@ -123,11 +119,6 @@ export function SettingsPopover() {
     }
   }, [open, isExpanded, updatePos])
 
-  useEffect(() => {
-    if (!open) return
-    window.clui.getInstalledTerminals().then(setInstalledTerminals)
-  }, [open])
-
   const handleToggle = () => {
     if (!open) updatePos()
     setOpen((o) => !o)
@@ -170,41 +161,6 @@ export function SettingsPopover() {
           }}
         >
           <div className="p-3 flex flex-col gap-2.5">
-            {/* Terminal */}
-            {installedTerminals.length > 0 && (
-              <>
-                <div>
-                  <div className="flex items-center gap-2 min-w-0 mb-2">
-                    <TerminalWindowIcon size={14} style={{ color: colors.textTertiary }} />
-                    <div className="text-[12px] font-medium" style={{ color: colors.textPrimary }}>
-                      Terminal
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    {installedTerminals.map((id) => (
-                      <button
-                        key={id}
-                        onClick={() => setPreferredTerminal(id)}
-                        className="flex items-center justify-between px-2 py-1 rounded-lg transition-colors text-[12px]"
-                        style={{
-                          background: preferredTerminal === id ? colors.popoverBorder : 'transparent',
-                          color: preferredTerminal === id ? colors.accent : colors.textSecondary,
-                          cursor: 'pointer',
-                        }}
-                      >
-                        {TERMINAL_DEFS[id].label}
-                        {preferredTerminal === id && (
-                          <span style={{ color: colors.accent, fontSize: 10 }}>✓</span>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div style={{ height: 1, background: colors.popoverBorder }} />
-              </>
-            )}
-
             {/* Notification sound */}
             <div>
               <div className="flex items-center justify-between gap-3">
