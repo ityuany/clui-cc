@@ -199,9 +199,13 @@ input::placeholder {
 .btn-stack:hover .stack-btn-4 { right: 168px; }
 
 /* ─── Drag region for frameless window ─── */
+/* Manual drag via IPC replaces -webkit-app-region which conflicts with setIgnoreMouseEvents */
 .drag-region {
-  -webkit-app-region: drag;
+  cursor: grab;
+}
+.drag-region:active {
+  cursor: grabbing;
 }
 .no-drag {
-  -webkit-app-region: no-drag;
+  cursor: default;
 }

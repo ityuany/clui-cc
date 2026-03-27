@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, dialog, screen, globalShortcut, Tray, Menu, nativeImage, nativeTheme, shell, systemPreferences, Notification } from 'electron'
+import { app, BrowserWindow, ipcMain, dialog, screen, globalShortcut, Tray, Menu, nativeImage, nativeTheme, shell, systemPreferences, Notification, session } from 'electron'
 import { join } from 'path'
 import { existsSync, readdirSync, statSync, createReadStream } from 'fs'
 import { createInterface } from 'readline'
@@ -13,6 +13,40 @@ import type { RunOptions, NormalizedEvent, EnrichedError, TerminalApp } from '..
 
 const DEBUG_MODE = process.env.CLUI_DEBUG === '1'
 const SPACES_DEBUG = DEBUG_MODE || process.env.CLUI_SPACES_DEBUG === '1'
+
+function getContentSecurityPolicy(): string {
+  const isDev = !!process.env.ELECTRON_RENDERER_URL
+  const connectSrc = isDev
+    ? "connect-src 'self' ws://localhost:* http://localhost:*;"
+    : "connect-src 'self';"
+  const scriptSrc = isDev
+    ? "script-src 'self' 'unsafe-inline' 'unsafe-eval';"
+    : "script-src 'self';"
+  return [
+    "default-src 'none'",
+    scriptSrc,
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob:",
+    "media-src 'self' data: blob:",
+    "font-src 'self'",
+    connectSrc,
+    "object-src 'none'",
+    "base-uri 'none'",
+    "frame-src 'none'",
+  ].join('; ')
+}
+
+function installContentSecurityPolicy(): void {
+  const csp = getContentSecurityPolicy()
+  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    callback({
+      responseHeaders: {
+        ...details.responseHeaders,
+        'Content-Security-Policy': [csp],
+      },
+    })
+  })
+}
 
 // Suppress EIO/EPIPE uncaught exceptions that Electron throws when the renderer
 // process closes its stdio streams (e.g. when the window is hidden via keyboard
@@ -36,6 +70,7 @@ let mainWindow: BrowserWindow | null = null
 let tray: Tray | null = null
 let screenshotCounter = 0
 let toggleSequence = 0
+let lastWindowBounds: Electron.Rectangle | null = null
 
 // Feature flag: enable PTY interactive permissions transport
 const INTERACTIVE_PTY = process.env.CLUI_INTERACTIVE_PERMISSIONS_PTY === '1'
@@ -164,15 +199,21 @@ function createWindow(): void {
     icon: join(__dirname, '../../resources/icon.icns'),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
+      sandbox: true,
       contextIsolation: true,
       nodeIntegration: false,
+      webSecurity: true,
+      allowRunningInsecureContent: false,
     },
   })
+  lastWindowBounds = mainWindow.getBounds()
 
   // Belt-and-suspenders: panel already joins all spaces and floats,
   // but explicit flags ensure correct behavior on older Electron builds.
   mainWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })
   mainWindow.setAlwaysOnTop(true, 'screen-saver')
+  mainWindow.webContents.setWindowOpenHandler(() => ({ action: 'deny' }))
+  mainWindow.webContents.on('will-navigate', (event) => { event.preventDefault() })
 
   mainWindow.once('ready-to-show', () => {
     mainWindow?.show()
@@ -201,11 +242,8 @@ function createWindow(): void {
   }
 }
 
-function showWindow(source = 'unknown'): void {
+function resetWindowPosition(): void {
   if (!mainWindow) return
-  const toggleId = ++toggleSequence
-
-  // Position on the display where the cursor currently is (not always primary)
   const cursor = screen.getCursorScreenPoint()
   const display = screen.getDisplayNearestPoint(cursor)
   const { width: sw, height: sh } = display.workAreaSize
@@ -216,6 +254,18 @@ function showWindow(source = 'unknown'): void {
     width: BAR_WIDTH,
     height: PILL_HEIGHT,
   })
+  lastWindowBounds = mainWindow.getBounds()
+}
+
+function showWindow(source = 'unknown'): void {
+  if (!mainWindow) return
+  const toggleId = ++toggleSequence
+
+  if (lastWindowBounds) {
+    mainWindow.setBounds(lastWindowBounds)
+  } else {
+    resetWindowPosition()
+  }
 
   // Always re-assert space membership — the flag can be lost after hide/show cycles
   // and must be set before show() so the window joins the active Space, not its
@@ -223,12 +273,14 @@ function showWindow(source = 'unknown'): void {
   mainWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })
 
   if (SPACES_DEBUG) {
-    log(`[spaces] showWindow#${toggleId} source=${source} move-to-display id=${display.id}`)
+    const b = mainWindow.getBounds()
+    log(`[spaces] showWindow#${toggleId} source=${source} preserve-bounds=(${b.x},${b.y},${b.width}x${b.height})`)
     snapshotWindowState(`showWindow#${toggleId} pre-show`)
   }
   // As an accessory app (app.dock.hide), show() + focus gives keyboard
   // without deactivating the active app — hover preserved everywhere.
   mainWindow.show()
+  if (lastWindowBounds) mainWindow.setBounds(lastWindowBounds)
   mainWindow.webContents.focus()
   broadcast(IPC.WINDOW_SHOWN)
   if (SPACES_DEBUG) scheduleToggleSnapshots(toggleId, 'show')
@@ -281,6 +333,20 @@ ipcMain.on(IPC.SET_IGNORE_MOUSE_EVENTS, (event, ignore: boolean, options?: { for
   if (win && !win.isDestroyed()) {
     win.setIgnoreMouseEvents(ignore, options || {})
   }
+})
+
+// Manual window drag — works reliably with frameless + setIgnoreMouseEvents
+ipcMain.on(IPC.START_WINDOW_DRAG, (event, deltaX: number, deltaY: number) => {
+  const win = BrowserWindow.fromWebContents(event.sender)
+  if (win && !win.isDestroyed()) {
+    const [x, y] = win.getPosition()
+    win.setPosition(Math.round(x + deltaX), Math.round(y + deltaY))
+    lastWindowBounds = win.getBounds()
+  }
+})
+
+ipcMain.on(IPC.RESET_WINDOW_POSITION, () => {
+  resetWindowPosition()
 })
 
 // ─── IPC Handlers (typed, strict) ───
@@ -1065,6 +1131,8 @@ app.whenReady().then(async () => {
 
   // Request permissions upfront so the user is never interrupted mid-session.
   await requestPermissions()
+
+  installContentSecurityPolicy()
 
   // Skill provisioning — non-blocking, streams status to renderer
   ensureSkills((status: SkillStatus) => {
