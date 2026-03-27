@@ -276,11 +276,13 @@ interface ThemeState {
   isDark: boolean
   themeMode: ThemeMode
   soundEnabled: boolean
+  preferredTerminal: import('../shared/types').TerminalApp
   /** OS-reported dark mode — used when themeMode is 'system' */
   _systemIsDark: boolean
   setIsDark: (isDark: boolean) => void
   setThemeMode: (mode: ThemeMode) => void
   setSoundEnabled: (enabled: boolean) => void
+  setPreferredTerminal: (app: import('../shared/types').TerminalApp) => void
   /** Called by OS theme change listener — updates system value */
   setSystemTheme: (isDark: boolean) => void
 }
@@ -306,7 +308,9 @@ function applyTheme(isDark: boolean): void {
 
 const SETTINGS_KEY = 'clui-settings'
 
-function loadSettings(): { themeMode: ThemeMode; soundEnabled: boolean } {
+const VALID_TERMINALS = ['terminal', 'iterm', 'warp', 'ghostty'] as const
+
+function loadSettings(): { themeMode: ThemeMode; soundEnabled: boolean; preferredTerminal: import('../shared/types').TerminalApp } {
   try {
     const raw = localStorage.getItem(SETTINGS_KEY)
     if (raw) {
@@ -314,13 +318,14 @@ function loadSettings(): { themeMode: ThemeMode; soundEnabled: boolean } {
       return {
         themeMode: ['light', 'dark'].includes(parsed.themeMode) ? parsed.themeMode : 'dark',
         soundEnabled: typeof parsed.soundEnabled === 'boolean' ? parsed.soundEnabled : true,
+        preferredTerminal: VALID_TERMINALS.includes(parsed.preferredTerminal) ? parsed.preferredTerminal : 'terminal',
       }
     }
   } catch {}
-  return { themeMode: 'dark', soundEnabled: true }
+  return { themeMode: 'dark', soundEnabled: true, preferredTerminal: 'terminal' }
 }
 
-function saveSettings(s: { themeMode: ThemeMode; soundEnabled: boolean }): void {
+function saveSettings(s: { themeMode: ThemeMode; soundEnabled: boolean; preferredTerminal: import('../shared/types').TerminalApp }): void {
   try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(s)) } catch {}
 }
 
@@ -330,6 +335,7 @@ export const useThemeStore = create<ThemeState>((set, get) => ({
   isDark: saved.themeMode === 'dark' ? true : saved.themeMode === 'light' ? false : true,
   themeMode: saved.themeMode,
   soundEnabled: saved.soundEnabled,
+  preferredTerminal: saved.preferredTerminal,
   _systemIsDark: true,
   setIsDark: (isDark) => {
     set({ isDark })
@@ -339,11 +345,15 @@ export const useThemeStore = create<ThemeState>((set, get) => ({
     const resolved = mode === 'system' ? get()._systemIsDark : mode === 'dark'
     set({ themeMode: mode, isDark: resolved })
     applyTheme(resolved)
-    saveSettings({ themeMode: mode, soundEnabled: get().soundEnabled })
+    saveSettings({ themeMode: mode, soundEnabled: get().soundEnabled, preferredTerminal: get().preferredTerminal })
   },
   setSoundEnabled: (enabled) => {
     set({ soundEnabled: enabled })
-    saveSettings({ themeMode: get().themeMode, soundEnabled: enabled })
+    saveSettings({ themeMode: get().themeMode, soundEnabled: enabled, preferredTerminal: get().preferredTerminal })
+  },
+  setPreferredTerminal: (app) => {
+    set({ preferredTerminal: app })
+    saveSettings({ themeMode: get().themeMode, soundEnabled: get().soundEnabled, preferredTerminal: app })
   },
   setSystemTheme: (isDark) => {
     set({ _systemIsDark: isDark })

@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { IPC } from '../shared/types'
-import type { RunOptions, NormalizedEvent, HealthReport, EnrichedError, Attachment, SessionMeta, CatalogPlugin, SessionLoadMessage, TabStatus } from '../shared/types'
+import type { RunOptions, NormalizedEvent, HealthReport, EnrichedError, Attachment, SessionMeta, CatalogPlugin, SessionLoadMessage, TabStatus, TerminalApp } from '../shared/types'
 
 export interface CluiAPI {
   // ─── Request-response (renderer → main) ───
@@ -15,7 +15,8 @@ export interface CluiAPI {
   closeTab(tabId: string): Promise<void>
   selectDirectory(): Promise<string | null>
   openExternal(url: string): Promise<boolean>
-  openInTerminal(sessionId: string | null, projectPath?: string): Promise<boolean>
+  openInTerminal(sessionId: string | null, projectPath?: string, terminalApp?: TerminalApp): Promise<boolean>
+  getInstalledTerminals(): Promise<TerminalApp[]>
   attachFiles(): Promise<Attachment[] | null>
   takeScreenshot(): Promise<Attachment | null>
   pasteImage(dataUrl: string): Promise<Attachment | null>
@@ -64,7 +65,8 @@ const api: CluiAPI = {
   closeTab: (tabId) => ipcRenderer.invoke(IPC.CLOSE_TAB, tabId),
   selectDirectory: () => ipcRenderer.invoke(IPC.SELECT_DIRECTORY),
   openExternal: (url) => ipcRenderer.invoke(IPC.OPEN_EXTERNAL, url),
-  openInTerminal: (sessionId, projectPath) => ipcRenderer.invoke(IPC.OPEN_IN_TERMINAL, { sessionId, projectPath }),
+  openInTerminal: (sessionId, projectPath, terminalApp) => ipcRenderer.invoke(IPC.OPEN_IN_TERMINAL, { sessionId, projectPath, terminalApp }),
+  getInstalledTerminals: () => ipcRenderer.invoke(IPC.GET_INSTALLED_TERMINALS),
   attachFiles: () => ipcRenderer.invoke(IPC.ATTACH_FILES),
   takeScreenshot: () => ipcRenderer.invoke(IPC.TAKE_SCREENSHOT),
   pasteImage: (dataUrl) => ipcRenderer.invoke(IPC.PASTE_IMAGE, dataUrl),

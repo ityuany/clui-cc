@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { TerminalIcon, CaretDownIcon, CheckIcon, FolderOpenIcon, PlusIcon, XIcon, ShieldCheckIcon, UserCircleIcon, KeyIcon } from '@phosphor-icons/react'
 import { useSessionStore, AVAILABLE_MODELS, getModelDisplayLabel } from '../stores/session-store'
 import { usePopoverLayer } from './popover-layer'
-import { useColors } from '../theme'
+import { useColors, useThemeStore } from '../theme'
 import { FONT_SIZE, BORDER_RADIUS, TRANSITION } from '../constants'
 import { loadApiConfig, loadApiConfigData } from './api-config-popover'
 
@@ -426,6 +426,7 @@ export function StatusBar() {
   const removeDirectory = useSessionStore((s) => s.removeDirectory)
   const popoverLayer = usePopoverLayer()
   const colors = useColors()
+  const preferredTerminal = useThemeStore((s) => s.preferredTerminal)
 
   const [dirOpen, setDirOpen] = useState(false)
   const dirRef = useRef<HTMLButtonElement>(null)
@@ -452,7 +453,7 @@ export function StatusBar() {
   const hasExtraDirs = tab.additionalDirs.length > 0
 
   const handleOpenInTerminal = () => {
-    window.clui.openInTerminal(tab.claudeSessionId, tab.workingDirectory)
+    window.clui.openInTerminal(tab.claudeSessionId, tab.workingDirectory, preferredTerminal)
   }
 
   const handleDirClick = () => {

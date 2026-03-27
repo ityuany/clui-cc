@@ -319,6 +319,7 @@ export const IPC = {
   SELECT_DIRECTORY: 'clui:select-directory',
   OPEN_EXTERNAL: 'clui:open-external',
   OPEN_IN_TERMINAL: 'clui:open-in-terminal',
+  GET_INSTALLED_TERMINALS: 'clui:get-installed-terminals',
   ATTACH_FILES: 'clui:attach-files',
   TAKE_SCREENSHOT: 'clui:take-screenshot',
   TRANSCRIBE_AUDIO: 'clui:transcribe-audio',
@@ -375,3 +376,14 @@ export const IPC = {
   RUN_COMPLETE: 'clui:run-complete',
   RUN_ERROR: 'clui:run-error',
 } as const
+
+// ─── Terminal app support ───
+
+export type TerminalApp = 'terminal' | 'iterm' | 'warp' | 'ghostty'
+
+export const TERMINAL_DEFS: Record<TerminalApp, { label: string; appName: string; appPath: string }> = {
+  terminal: { label: 'Terminal',  appName: 'Terminal', appPath: '/System/Applications/Utilities/Terminal.app' },
+  iterm:    { label: 'iTerm2',    appName: 'iTerm',    appPath: '/Applications/iTerm.app' },
+  warp:     { label: 'Warp',      appName: 'Warp',     appPath: '/Applications/Warp.app' },
+  ghostty:  { label: 'Ghostty',   appName: 'Ghostty',  appPath: '/Applications/Ghostty.app' },
+}

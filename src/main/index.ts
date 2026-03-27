@@ -940,23 +940,33 @@ ipcMain.handle(IPC.GET_DIAGNOSTICS, () => {
   }
 })
 
-ipcMain.handle(IPC.OPEN_IN_TERMINAL, (_event, arg: string | null | { sessionId?: string | null; projectPath?: string }) => {
-  const { execFile } = require('child_process')
-  const claudeBin = 'claude'
+ipcMain.handle(IPC.GET_INSTALLED_TERMINALS, () => {
+  const fs = require('fs') as typeof import('fs')
+  const { TERMINAL_DEFS } = require('../shared/types') as typeof import('../shared/types')
+  return (Object.keys(TERMINAL_DEFS) as import('../shared/types').TerminalApp[]).filter(
+    (id) => fs.existsSync(TERMINAL_DEFS[id].appPath)
+  )
+})
+
+ipcMain.handle(IPC.OPEN_IN_TERMINAL, (_event, arg: string | null | { sessionId?: string | null; projectPath?: string; terminalApp?: string }) => {
+  const { spawn } = require('child_process') as typeof import('child_process')
+  const { clipboard, Notification } = require('electron') as typeof import('electron')
+  const { TERMINAL_DEFS } = require('../shared/types') as typeof import('../shared/types')
 
   const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
-  // Support both old (string) and new ({ sessionId, projectPath }) calling convention
   let sessionId: string | null = null
   let projectPath: string = process.cwd()
+  let terminalApp: string = 'terminal'
   if (typeof arg === 'string') {
     sessionId = arg
   } else if (arg && typeof arg === 'object') {
     sessionId = arg.sessionId ?? null
     projectPath = arg.projectPath && arg.projectPath !== '~' ? arg.projectPath : process.cwd()
+    terminalApp = arg.terminalApp ?? 'terminal'
   }
 
-  // Validate sessionId — must be a strict UUID to prevent injection into the shell command
+  // Validate sessionId — must be a strict UUID to prevent injection
   if (sessionId && !UUID_RE.test(sessionId)) {
     log(`OPEN_IN_TERMINAL: rejected invalid sessionId: ${sessionId}`)
     return false
@@ -968,36 +978,25 @@ ipcMain.handle(IPC.OPEN_IN_TERMINAL, (_event, arg: string | null | { sessionId?:
     return false
   }
 
-  // Escape a value for embedding inside an AppleScript double-quoted string literal.
-  // Only `\` and `"` are special in AppleScript strings; null bytes and newlines are
-  // already rejected above, so this is sufficient.
-  const escapeAppleScriptString = (s: string): string =>
-    s.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
-
-  // Build the resume flag; sessionId is UUID-validated above, safe to embed directly.
+  const def = TERMINAL_DEFS[terminalApp as import('../shared/types').TerminalApp] ?? TERMINAL_DEFS.terminal
   const resumeFlag = sessionId ? ` --resume ${sessionId}` : ''
+  const cmd = `cd ${JSON.stringify(projectPath)} && claude${resumeFlag}`
 
-  // Pass projectPath as an AppleScript variable, then use AppleScript's built-in
-  // `quoted form of` to shell-quote it — equivalent to Python's shlex.quote().
-  // This avoids layering manual shell-escaping on top of AppleScript-escaping.
-  const appleScript = [
-    `set thePath to "${escapeAppleScriptString(projectPath)}"`,
-    `tell application "Terminal"`,
-    `  activate`,
-    `  do script "cd " & quoted form of thePath & " && ${claudeBin}${resumeFlag}"`,
-    `end tell`,
-  ].join('\n')
+  // Write command to clipboard so user can paste immediately
+  clipboard.writeText(cmd)
 
-  try {
-    execFile('/usr/bin/osascript', ['-e', appleScript], (err: Error | null) => {
-      if (err) log(`Failed to open terminal: ${err.message}`)
-      else log(`Opened terminal in: ${projectPath}`)
-    })
-    return true
-  } catch (err: unknown) {
-    log(`Failed to open terminal: ${err}`)
-    return false
-  }
+  // Open the terminal at the project directory
+  const child = spawn('open', ['-a', def.appName, projectPath], { detached: true, stdio: 'ignore' })
+  child.unref()
+
+  // System notification
+  new Notification({
+    title: 'Opened in terminal',
+    body: 'Command copied to clipboard — paste to resume',
+  }).show()
+
+  log(`Opened ${def.label} in: ${projectPath}`)
+  return true
 })
 
 // ─── Marketplace IPC ───
