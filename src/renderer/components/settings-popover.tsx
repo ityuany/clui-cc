@@ -171,7 +171,7 @@ export function SettingsPopover() {
         >
           <div className="p-3 flex flex-col gap-2.5">
             {/* Terminal */}
-            {installedTerminals.length > 1 && (
+            {installedTerminals.length > 0 && (
               <>
                 <div>
                   <div className="flex items-center gap-2 min-w-0 mb-2">

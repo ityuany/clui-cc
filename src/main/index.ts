@@ -8,8 +8,8 @@ import { ensureSkills, type SkillStatus } from './skills/installer'
 import { fetchCatalog, listInstalled, installPlugin, uninstallPlugin } from './marketplace/catalog'
 import { log as _log, LOG_FILE, flushLogs } from './logger'
 import { getCliEnv } from './cli-env'
-import { IPC } from '../shared/types'
-import type { RunOptions, NormalizedEvent, EnrichedError } from '../shared/types'
+import { IPC, TERMINAL_DEFS } from '../shared/types'
+import type { RunOptions, NormalizedEvent, EnrichedError, TerminalApp } from '../shared/types'
 
 const DEBUG_MODE = process.env.CLUI_DEBUG === '1'
 const SPACES_DEBUG = DEBUG_MODE || process.env.CLUI_SPACES_DEBUG === '1'
@@ -942,8 +942,7 @@ ipcMain.handle(IPC.GET_DIAGNOSTICS, () => {
 
 ipcMain.handle(IPC.GET_INSTALLED_TERMINALS, () => {
   const fs = require('fs') as typeof import('fs')
-  const { TERMINAL_DEFS } = require('../shared/types') as typeof import('../shared/types')
-  return (Object.keys(TERMINAL_DEFS) as import('../shared/types').TerminalApp[]).filter(
+  return (Object.keys(TERMINAL_DEFS) as TerminalApp[]).filter(
     (id) => fs.existsSync(TERMINAL_DEFS[id].appPath)
   )
 })
@@ -951,7 +950,6 @@ ipcMain.handle(IPC.GET_INSTALLED_TERMINALS, () => {
 ipcMain.handle(IPC.OPEN_IN_TERMINAL, (_event, arg: string | null | { sessionId?: string | null; projectPath?: string; terminalApp?: string }) => {
   const { spawn } = require('child_process') as typeof import('child_process')
   const { clipboard, Notification } = require('electron') as typeof import('electron')
-  const { TERMINAL_DEFS } = require('../shared/types') as typeof import('../shared/types')
 
   const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
@@ -978,7 +976,7 @@ ipcMain.handle(IPC.OPEN_IN_TERMINAL, (_event, arg: string | null | { sessionId?:
     return false
   }
 
-  const def = TERMINAL_DEFS[terminalApp as import('../shared/types').TerminalApp] ?? TERMINAL_DEFS.terminal
+  const def = TERMINAL_DEFS[terminalApp as TerminalApp] ?? TERMINAL_DEFS.terminal
   const resumeFlag = sessionId ? ` --resume ${sessionId}` : ''
   const cmd = `cd ${JSON.stringify(projectPath)} && claude${resumeFlag}`
 
