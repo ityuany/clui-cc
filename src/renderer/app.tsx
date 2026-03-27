@@ -175,8 +175,25 @@ export default function App() {
 
   const isExpanded = useSessionStore((s) => s.isExpanded)
   const activePanelId = useSessionStore((s) => s.activePanelId)
+  const closePanel = useSessionStore((s) => s.closePanel)
   const togglePanel = useSessionStore((s) => s.togglePanel)
   const isRunning = activeTabStatus === 'running' || activeTabStatus === 'connecting'
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return
+      const { activePanelId, isExpanded, toggleExpanded } = useSessionStore.getState()
+      if (activePanelId) {
+        e.preventDefault()
+        closePanel()
+      } else if (isExpanded) {
+        e.preventDefault()
+        toggleExpanded()
+      }
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [closePanel])
 
   // Layout dimensions — always full width
   const contentWidth = WIDTH.CONTENT_EXPANDED
