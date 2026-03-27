@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
-import { KeyIcon, EyeIcon, EyeSlashIcon, CheckIcon, PlusIcon, PencilSimpleIcon, TrashIcon, ArrowLeftIcon } from '@phosphor-icons/react'
+import { KeyIcon, EyeIcon, EyeSlashIcon, CheckIcon, PlusIcon, PencilSimpleIcon, TrashIcon, ArrowLeftIcon, XIcon } from '@phosphor-icons/react'
 import { useColors } from '../theme'
+import { useSessionStore } from '../stores/session-store'
 import { FONT_SIZE, BORDER_RADIUS, TRANSITION } from '../constants'
 
 // ─── Types ───
@@ -343,7 +344,9 @@ export function ApiConfigContent() {
     saveConfigData(next)
   }
 
-  const inner = view === 'edit' ? (
+  const closePanel = useSessionStore((s) => s.closePanel)
+
+  const content = view === 'edit' ? (
     <EditPanel
       profile={editingProfile}
       onSave={handleSaveEdit}
@@ -351,18 +354,7 @@ export function ApiConfigContent() {
       colors={colors}
     />
   ) : (
-    <div className="flex flex-col gap-2">
-      {/* Header */}
-      <div className="flex items-center gap-2">
-        <KeyIcon size={14} style={{ color: colors.textTertiary }} />
-        <span className="text-[12px] font-medium" style={{ color: colors.textPrimary }}>API 配置</span>
-        <span style={{ marginLeft: 'auto', fontSize: FONT_SIZE.SM, color: colors.textTertiary }}>
-          {configData.profiles.length} 条
-        </span>
-      </div>
-
-      <div style={{ height: 1, background: colors.popoverBorder }} />
-
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: '16px 18px' }}>
       {configData.profiles.length === 0 ? (
         <div className="text-[11px] text-center py-3" style={{ color: colors.textTertiary }}>
           暂无配置，点击下方新增
@@ -383,7 +375,7 @@ export function ApiConfigContent() {
         </div>
       )}
 
-      <div style={{ height: 1, background: colors.popoverBorder }} />
+      <div style={{ height: 1, background: colors.containerBorder }} />
 
       <button
         onClick={handleNew}
@@ -403,11 +395,42 @@ export function ApiConfigContent() {
     </div>
   )
 
-  // 填满整个面板容器，内容区居中
   return (
-    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ width: 320 }}>
-        {inner}
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      {/* Header */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '16px 18px 10px',
+        borderBottom: `1px solid ${colors.containerBorder}`,
+        flexShrink: 0,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <KeyIcon size={20} weight="regular" style={{ color: colors.accent }} />
+          <div>
+            <div style={{ fontSize: FONT_SIZE.MD, fontWeight: 700, color: colors.textPrimary }}>
+              密钥管理
+            </div>
+            <div style={{ fontSize: FONT_SIZE.BASE_SM, color: colors.textTertiary, marginTop: 2 }}>
+              管理 API 密钥和模型接入配置
+            </div>
+          </div>
+        </div>
+        <button
+          onClick={closePanel}
+          style={{
+            background: 'none', border: 'none', cursor: 'pointer',
+            color: colors.textTertiary, padding: 2, display: 'flex',
+            borderRadius: BORDER_RADIUS.SM,
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = colors.textPrimary)}
+          onMouseLeave={(e) => (e.currentTarget.style.color = colors.textTertiary)}
+        >
+          <XIcon size={14} />
+        </button>
+      </div>
+
+      <div style={{ flex: 1, overflowY: 'auto' }}>
+        {content}
       </div>
     </div>
   )
