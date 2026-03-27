@@ -10,7 +10,7 @@ import {
 import { useSessionStore } from '../stores/session-store'
 import { PermissionCard } from './permission-card'
 import { PermissionDeniedCard } from './permission-denied-card'
-import { useColors, useThemeStore } from '../theme'
+import { useColors } from '../theme'
 import { MESSAGE_LIMITS, SCROLL_LIMITS, DURATION, TRANSITION, FONT_SIZE } from '../constants'
 import type { Message } from '../../shared/types'
 
@@ -68,7 +68,6 @@ export function ConversationView() {
   const isNearBottomRef = useRef(true)
   const prevTabIdRef = useRef(activeTabId)
   const colors = useColors()
-  const expandedUI = useThemeStore((s) => s.expandedUI)
 
   // Reset render offset and scroll state when switching tabs
   useEffect(() => {

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { motion } from 'framer-motion'
-import { DotsThreeIcon, BellIcon, ArrowsOutSimpleIcon, MoonIcon } from '@phosphor-icons/react'
+import { DotsThreeIcon, BellIcon, MoonIcon } from '@phosphor-icons/react'
 import { useThemeStore } from '../theme'
 import { useSessionStore } from '../stores/session-store'
 import { usePopoverLayer } from './popover-layer'
@@ -49,8 +49,6 @@ export function SettingsPopover() {
   const setSoundEnabled = useThemeStore((s) => s.setSoundEnabled)
   const themeMode = useThemeStore((s) => s.themeMode)
   const setThemeMode = useThemeStore((s) => s.setThemeMode)
-  const expandedUI = useThemeStore((s) => s.expandedUI)
-  const setExpandedUI = useThemeStore((s) => s.setExpandedUI)
   const isExpanded = useSessionStore((s) => s.isExpanded)
   const popoverLayer = usePopoverLayer()
   const colors = useColors()
@@ -119,7 +117,7 @@ export function SettingsPopover() {
     return () => {
       if (raf) cancelAnimationFrame(raf)
     }
-  }, [open, expandedUI, isExpanded, updatePos])
+  }, [open, isExpanded, updatePos])
 
   const handleToggle = () => {
     if (!open) updatePos()
@@ -163,28 +161,6 @@ export function SettingsPopover() {
           }}
         >
           <div className="p-3 flex flex-col gap-2.5">
-            {/* Full width */}
-            <div>
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2 min-w-0">
-                  <ArrowsOutSimpleIcon size={14} style={{ color: colors.textTertiary }} />
-                  <div className="text-[12px] font-medium" style={{ color: colors.textPrimary }}>
-                    Full width
-                  </div>
-                </div>
-                <RowToggle
-                  checked={expandedUI}
-                  onChange={(next) => {
-                    setExpandedUI(next)
-                  }}
-                  colors={colors}
-                  label="Toggle full width panel"
-                />
-              </div>
-            </div>
-
-            <div style={{ height: 1, background: colors.popoverBorder }} />
-
             {/* Notification sound */}
             <div>
               <div className="flex items-center justify-between gap-3">

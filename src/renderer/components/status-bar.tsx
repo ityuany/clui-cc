@@ -70,7 +70,7 @@ function ModelPicker() {
       <button
         ref={triggerRef}
         onClick={handleToggle}
-        className="flex items-center gap-0.5 text-[10px] rounded-full px-1.5 py-0.5 transition-colors"
+        className="flex items-center gap-0.5 text-[12px] rounded-full px-1.5 py-0.5 transition-colors"
         style={{
           color: colors.textTertiary,
           cursor: isBusy ? 'not-allowed' : 'pointer',
@@ -78,7 +78,7 @@ function ModelPicker() {
         title={isBusy ? 'Stop the task to change model' : 'Switch model'}
       >
         {activeLabel}
-        <CaretDownIcon size={10} style={{ opacity: 0.6 }} />
+        <CaretDownIcon size={12} style={{ opacity: 0.6 }} />
       </button>
 
       {popoverLayer && open && createPortal(
@@ -179,16 +179,16 @@ function PermissionModePicker() {
       <button
         ref={triggerRef}
         onClick={handleToggle}
-        className="flex items-center gap-0.5 text-[10px] rounded-full px-1.5 py-0.5 transition-colors"
+        className="flex items-center gap-0.5 text-[12px] rounded-full px-1.5 py-0.5 transition-colors"
         style={{
           color: colors.textTertiary,
           cursor: 'pointer',
         }}
         title="Permission mode"
       >
-        <ShieldCheckIcon size={11} weight={isAuto ? 'fill' : 'regular'} />
+        <ShieldCheckIcon size={12} weight={isAuto ? 'fill' : 'regular'} />
         {isAuto ? 'Auto' : 'Ask'}
-        <CaretDownIcon size={10} style={{ opacity: 0.6 }} />
+        <CaretDownIcon size={12} style={{ opacity: 0.6 }} />
       </button>
 
       {popoverLayer && open && createPortal(
@@ -306,16 +306,16 @@ function AccountSource() {
       <button
         ref={triggerRef}
         onClick={handleToggle}
-        className="flex items-center gap-0.5 text-[10px] rounded-full px-1.5 py-0.5 transition-colors"
-        style={{ color: colors.textTertiary, maxWidth: 120 }}
+        className="flex items-center gap-0.5 text-[12px] rounded-full px-1.5 py-0.5 transition-colors"
+        style={{ color: colors.textTertiary, maxWidth: 120, cursor: 'pointer' }}
         title={isProfile ? `API Profile: ${label}` : `Logged in as ${label}`}
       >
         {isProfile
-          ? <KeyIcon size={10} style={{ flexShrink: 0 }} />
-          : <UserCircleIcon size={10} style={{ flexShrink: 0 }} />
+          ? <KeyIcon size={12} style={{ flexShrink: 0 }} />
+          : <UserCircleIcon size={12} style={{ flexShrink: 0 }} />
         }
         <span className="truncate">{label}</span>
-        <CaretDownIcon size={10} style={{ opacity: 0.6, flexShrink: 0 }} />
+        <CaretDownIcon size={12} style={{ opacity: 0.6, flexShrink: 0 }} />
       </button>
 
       {popoverLayer && open && createPortal(
@@ -484,7 +484,7 @@ export function StatusBar() {
       style={{ minHeight: 28 }}
     >
       {/* Left — directory + model picker */}
-      <div className="flex items-center gap-2 text-[11px] min-w-0" style={{ color: colors.textTertiary }}>
+      <div className="flex items-center gap-2 text-[12px] min-w-0" style={{ color: colors.textTertiary }}>
         {/* Directory button */}
         <button
           ref={dirRef}
@@ -498,7 +498,7 @@ export function StatusBar() {
           title={dirTooltip}
           disabled={isRunning}
         >
-          <FolderOpenIcon size={11} className="flex-shrink-0" />
+          <FolderOpenIcon size={12} className="flex-shrink-0" />
           <span className="truncate">{tab.hasChosenDirectory ? compactPath(tab.workingDirectory) : '—'}</span>
           {hasExtraDirs && (
             <span style={{ color: colors.textTertiary, fontWeight: 600 }}>+{tab.additionalDirs.length}</span>
@@ -596,12 +596,12 @@ export function StatusBar() {
       <div className="flex items-center gap-1.5 flex-shrink-0">
         <button
           onClick={handleOpenInTerminal}
-          className="flex items-center gap-1 text-[11px] rounded-full px-2 py-0.5 transition-colors"
-          style={{ color: colors.textTertiary }}
+          className="flex items-center gap-1 text-[12px] rounded-full px-2 py-0.5 transition-colors"
+          style={{ color: colors.textTertiary, cursor: 'pointer' }}
           title="Open this session in TerminalIcon"
         >
           Open in CLI
-          <TerminalIcon size={11} />
+          <TerminalIcon size={12} />
         </button>
       </div>
     </div>

@@ -11,7 +11,7 @@ import { PopoverLayerProvider } from './components/popover-layer'
 import { useClaudeEvents } from './hooks/use-claude-events'
 import { useHealthReconciliation } from './hooks/use-health-reconciliation'
 import { useSessionStore } from './stores/session-store'
-import { useColors, useThemeStore, spacing } from './theme'
+import { useColors, useThemeStore } from './theme'
 import { TRANSITION, WIDTH, HEIGHT, BORDER_RADIUS, MARGIN, Z_INDEX, SCALE } from './constants'
 
 export default function App() {
@@ -22,8 +22,6 @@ export default function App() {
   const addAttachments = useSessionStore((s) => s.addAttachments)
   const colors = useColors()
   const setSystemTheme = useThemeStore((s) => s.setSystemTheme)
-  const expandedUI = useThemeStore((s) => s.expandedUI)
-
   // ─── Theme initialization ───
   useEffect(() => {
     // Get initial OS theme — setSystemTheme respects themeMode (system/light/dark)
@@ -96,10 +94,10 @@ export default function App() {
   const togglePanel = useSessionStore((s) => s.togglePanel)
   const isRunning = activeTabStatus === 'running' || activeTabStatus === 'connecting'
 
-  // Layout dimensions — expandedUI widens and heightens the panel
-  const contentWidth = expandedUI ? WIDTH.CONTENT_EXPANDED : spacing.contentWidth
-  const cardExpandedWidth = expandedUI ? WIDTH.CARD_EXPANDED_WIDE : WIDTH.CARD_EXPANDED
-  const cardCollapsedWidth = expandedUI ? WIDTH.CARD_COLLAPSED_WIDE : WIDTH.CARD_COLLAPSED
+  // Layout dimensions — always full width
+  const contentWidth = WIDTH.CONTENT_EXPANDED
+  const cardExpandedWidth = WIDTH.CARD_EXPANDED_WIDE
+  const cardCollapsedWidth = WIDTH.CARD_COLLAPSED_WIDE
   const cardCollapsedMargin = MARGIN.CARD_COLLAPSED
 
   const handleScreenshot = useCallback(async () => {
