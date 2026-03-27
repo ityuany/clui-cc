@@ -298,7 +298,7 @@ function EmptyState() {
 
   return (
     <div
-      className="flex flex-col items-center justify-center px-4 py-3 gap-1.5"
+      className="flex flex-col items-center justify-center px-4 py-3 gap-6"
       style={{ minHeight: 80 }}
     >
       <button
