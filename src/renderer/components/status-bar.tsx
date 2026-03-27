@@ -477,7 +477,7 @@ export function StatusBar() {
   const handleOpenInTerminal = (terminalId: TerminalApp) => {
     setPreferredTerminal(terminalId)
     setCliOpen(false)
-    window.clui.openInTerminal(tab.claudeSessionId, tab.workingDirectory, terminalId)
+    window.clui.openInTerminal(tab.claudeSessionId, tab.workingDirectory, terminalId, tab.preferredModel ?? undefined)
   }
 
   const handleCliClick = () => {

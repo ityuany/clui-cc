@@ -15,7 +15,7 @@ export interface CluiAPI {
   closeTab(tabId: string): Promise<void>
   selectDirectory(): Promise<string | null>
   openExternal(url: string): Promise<boolean>
-  openInTerminal(sessionId: string | null, projectPath?: string, terminalApp?: TerminalApp): Promise<boolean>
+  openInTerminal(sessionId: string | null, projectPath?: string, terminalApp?: TerminalApp, model?: string): Promise<boolean>
   getInstalledTerminals(): Promise<TerminalApp[]>
   attachFiles(): Promise<Attachment[] | null>
   takeScreenshot(): Promise<Attachment | null>
@@ -69,7 +69,7 @@ const api: CluiAPI = {
   closeTab: (tabId) => ipcRenderer.invoke(IPC.CLOSE_TAB, tabId),
   selectDirectory: () => ipcRenderer.invoke(IPC.SELECT_DIRECTORY),
   openExternal: (url) => ipcRenderer.invoke(IPC.OPEN_EXTERNAL, url),
-  openInTerminal: (sessionId, projectPath, terminalApp) => ipcRenderer.invoke(IPC.OPEN_IN_TERMINAL, { sessionId, projectPath, terminalApp }),
+  openInTerminal: (sessionId, projectPath, terminalApp, model) => ipcRenderer.invoke(IPC.OPEN_IN_TERMINAL, { sessionId, projectPath, terminalApp, model }),
   getInstalledTerminals: () => ipcRenderer.invoke(IPC.GET_INSTALLED_TERMINALS),
   attachFiles: () => ipcRenderer.invoke(IPC.ATTACH_FILES),
   takeScreenshot: () => ipcRenderer.invoke(IPC.TAKE_SCREENSHOT),

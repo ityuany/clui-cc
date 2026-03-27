@@ -1013,21 +1013,24 @@ ipcMain.handle(IPC.GET_INSTALLED_TERMINALS, () => {
   )
 })
 
-ipcMain.handle(IPC.OPEN_IN_TERMINAL, (_event, arg: string | null | { sessionId?: string | null; projectPath?: string; terminalApp?: string }) => {
+ipcMain.handle(IPC.OPEN_IN_TERMINAL, (_event, arg: string | null | { sessionId?: string | null; projectPath?: string; terminalApp?: string; model?: string }) => {
   const { spawn } = require('child_process') as typeof import('child_process')
   const { clipboard, Notification } = require('electron') as typeof import('electron')
 
   const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+  const MODEL_RE = /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,99}$/
 
   let sessionId: string | null = null
   let projectPath: string = process.cwd()
   let terminalApp: string = 'terminal'
+  let model: string | null = null
   if (typeof arg === 'string') {
     sessionId = arg
   } else if (arg && typeof arg === 'object') {
     sessionId = arg.sessionId ?? null
     projectPath = arg.projectPath && arg.projectPath !== '~' ? arg.projectPath : process.cwd()
     terminalApp = arg.terminalApp ?? 'terminal'
+    model = arg.model ?? null
   }
 
   // Validate sessionId — must be a strict UUID to prevent injection
@@ -1042,9 +1045,16 @@ ipcMain.handle(IPC.OPEN_IN_TERMINAL, (_event, arg: string | null | { sessionId?:
     return false
   }
 
+  // Validate model — alphanumeric + safe chars only
+  if (model && !MODEL_RE.test(model)) {
+    log(`OPEN_IN_TERMINAL: rejected invalid model: ${model}`)
+    model = null
+  }
+
   const def = TERMINAL_DEFS[terminalApp as TerminalApp] ?? TERMINAL_DEFS.terminal
   const resumeFlag = sessionId ? ` --resume ${sessionId}` : ''
-  const cmd = `cd ${JSON.stringify(projectPath)} && claude${resumeFlag}`
+  const modelFlag = model ? ` --model ${model}` : ''
+  const cmd = `cd ${JSON.stringify(projectPath)} && claude${resumeFlag}${modelFlag}`
 
   // Write command to clipboard so user can paste immediately
   clipboard.writeText(cmd)
