@@ -262,7 +262,14 @@ function showWindow(source = 'unknown'): void {
   const toggleId = ++toggleSequence
 
   if (lastWindowBounds) {
-    mainWindow.setBounds(lastWindowBounds)
+    const cursor = screen.getCursorScreenPoint()
+    const cursorDisplay = screen.getDisplayNearestPoint(cursor)
+    const lastDisplay = screen.getDisplayNearestPoint({ x: lastWindowBounds.x, y: lastWindowBounds.y })
+    if (lastDisplay.id === cursorDisplay.id) {
+      mainWindow.setBounds(lastWindowBounds)
+    } else {
+      resetWindowPosition()
+    }
   } else {
     resetWindowPosition()
   }
